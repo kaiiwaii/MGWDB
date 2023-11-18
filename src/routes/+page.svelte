@@ -33,16 +33,28 @@
     };
   
     onMount(() => {
-      ratingSystem = new RatingSystem("MyRatingSystem");
-      ratingSystem.parse(jsonData["elements"]);
-  
-      try {
-        ratingSystem.check_weights();
-      } catch (error) {
-        console.error('Weight check error:', error);
-        // Handle the error as needed
-      }
+        ratingSystem = new RatingSystem("MyRatingSystem");
+        ratingSystem.parse(jsonData["elements"]);
+
+        try {
+            let groups = ratingSystem.check_global_weights();
+            ratingSystem.check_local_weights(groups);
+        } catch (error) {
+            console.error('Weight check error:', error);
+
+            if (error.name === "GlobalWeightError") {
+            globalWeightError = true;
+            } else if (error.name === "LocalWeightError") {
+            globalWeightError = false;
+            localWeightError = true;
+            localWeightErrorValue = error.value;
+            }
+        }
     });
+
+let globalWeightError = false;
+let localWeightError = false;
+let localWeightErrorValue = 0;
   </script>
   
   <style>

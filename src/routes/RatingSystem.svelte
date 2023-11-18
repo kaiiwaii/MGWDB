@@ -8,18 +8,32 @@
     return formattedWeight;
   }
 
-  let weightCheckError = false;
+  let globalWeightError = false;
+  let localWeightError = false;
+  let localWeightErrorValue = '';
 
   function handleWeightChange() {
     try {
-      ratingSystem.check_weights();
-      weightCheckError = false;
+      globalWeightError = false;
+      localWeightError = false;
+      
+      // Call check_global_weights and store the result in groups
+      let groups = ratingSystem.check_global_weights();
+      ratingSystem.check_local_weights(groups);
+      
     } catch (error) {
       console.error('Weight check error:', error);
-      weightCheckError = true;
-      // Handle the error as needed
+
+      if (error.name === "GlobalWeightError") {
+        globalWeightError = true;
+        localWeightError = false;
+      } else if (error.name === "LocalWeightError") {
+        globalWeightError = false;
+        localWeightError = true;
+        localWeightErrorValue = error.value;
+      }
     }
-  }
+}
 </script>
 
 <style>
@@ -29,42 +43,54 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     margin: 20px 0;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    border-color: #ccc; /* Red border for global error */
   }
 
   .error-container {
     background-color: #ffcdd2; /* Light red color for error state */
   }
 
-  .group {
-    margin-bottom: 15px;
+  .single_category, .group {
+    margin-bottom: 20px;
   }
 
-  .category {
+  .group-header,
+  .category,
+  .single_category,
+  .setting {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
   }
 
-  .category-name {
-    flex: 1;
-    margin-right: 10px;
-  }
-
-  .slider {
-    width: 200px;
+  .weight-name,
+  .slider,
+  .checkbox {
     margin-right: 10px;
   }
 </style>
 
-<div class:error-container={weightCheckError} class="rating-system">
+<div class:error-container={globalWeightError} class="rating-system">
   {#if ratingSystem}
     <h1>{ratingSystem.name}</h1>
 
     {#each ratingSystem.elements as element (element.name)}
       {#if element && element instanceof Group}
         <div class="group">
-          <h2>{element.name}</h2>
+          <h2 class="group-header">
+            {element.name}
+            <input style="margin-left: 2rem;"
+              bind:value={element.weight}
+              type="range"
+              min="0"
+              max="100"
+              class="slider"
+              on:input={() => handleWeightChange()}
+            />
+            <span>{formatWeight(element.weight)}</span>
+          </h2>
+
           {#each element.categories as category (category.name)}
             <div class="category">
               <span class="category-name">{category.name}</span>
@@ -83,8 +109,8 @@
       {/if}
 
       {#if element && element instanceof Category}
-        <div class="category">
-          <span class="category-name">{element.name}</span>
+        <div class="single_category">
+          <h2 class="category-name">{element.name}</h2>
           <input
             bind:value={element.weight}
             type="range"
@@ -96,6 +122,21 @@
           <span>{formatWeight(element.weight)}</span>
         </div>
       {/if}
+
+      {#if element && element instanceof Setting}
+        <div class="setting">
+          <label>
+            <input
+              bind:checked={element.value}
+              type="checkbox"
+              class="checkbox"
+              on:change={() => handleWeightChange()}
+            />
+            {element.name}
+          </label>
+        </div>
+      {/if}
     {/each}
   {/if}
 </div>
+

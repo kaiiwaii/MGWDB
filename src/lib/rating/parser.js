@@ -119,11 +119,12 @@ class RatingSystem {
         }
 
     }
-    check_weights() {
+    check_global_weights() {
 
         let groups = [];
         let categories = [];
         let global_weight = 0;
+
         for(let el of this.elements) {
             if (el instanceof Group) {
                 groups.push(el)
@@ -156,6 +157,12 @@ class RatingSystem {
         } else {
             console.log("INFO: Global weight is correct. Checking individual groups' weights")
         }
+        //now check local weights
+        return groups
+    }
+
+    check_local_weights(groups) {
+
         for(let group of groups) {
             let local_weight = 0;
             for(let cat of group.categories) {
@@ -164,18 +171,20 @@ class RatingSystem {
             if(local_weight > 100) {
                 throw {
                     name: "LocalWeightError",
-                    message: `The local weight is ${local_weight}.The weight (%) of the categories in group ${group.name} can't be bigger than 100%!`
+                    message: `The local weight is ${local_weight}.The weight (%) of the categories in group ${group.name} can't be bigger than 100%!`,
+                    value: group.name
                 }
             } else if (local_weight < 100) {
                 throw {
                     name: "GlobalWeightError",
-                    message: `The local weight is ${local_weight}. The weight (%) of the categories in group ${group.name} can't be less than 100%!`
+                    message: `The local weight is ${local_weight}. The weight (%) of the categories in group ${group.name} can't be less than 100%!`,
+                    value: group.name
                 }
             } else {
                 console.log(`INFO: Local weight of group ${group.name} is correct.`)
             }
         }
-    } 
+    }
 }
 
 class Group {

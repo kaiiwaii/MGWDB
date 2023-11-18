@@ -1,0 +1,17 @@
+{
+    "MyRatingSystem": {
+        "Art": {
+            "weight": 30,
+            "categories": {
+                "graphics": 40,
+                "animations": 40,
+                "other": 20
+            }
+        },
+        "Music": {
+            "weight": 20,
+            "categories": {}
+        },
+        "_extras_": {}
+    }
+}

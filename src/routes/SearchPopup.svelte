@@ -106,9 +106,10 @@
               <p>Platforms: {result.platforms.join(', ')}</p>
               <p><a href={result.url} target="_blank" rel="noopener noreferrer">More Info</a></p>
 
-              <!-- Add Game button for each result -->
+              
               <button
                     on:click={() => {
+                        //TODO: react on added
                         games_to_add.push(result.id);
                         games_to_add_length++;
                         
@@ -141,7 +142,6 @@
       {/if}
 
       <button on:click={async () => {
-        //TODO: make the button react on added
         if (!isSearching && games_to_add.length === 0) {
           showPopup = false;
           searchResults = [];

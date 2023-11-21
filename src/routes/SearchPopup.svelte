@@ -1,21 +1,28 @@
+
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, afterUpdate } from 'svelte';
     import { format } from 'date-fns';
 
     export let showPopup: boolean;
     let searchTerm = '';
 
+    let games_to_add: number[] = [];
+    $: addedGames = [...games_to_add];
+    let games_to_add_length = 0;
+
     interface GameResult {
+        id: number,
         name: string;
-        cover: {url: string}; // Assuming cover is a URL
+        cover: {url: string};
         genres: string[];
-        first_release_date: number; // Unix timestamp
+        first_release_date: number;
         platforms: string[];
         url: string;
     }
 
     let searchResults: GameResult[] = [];
     let isSearching = false;
+    let isAddingGames = false; // Track the state of adding games
 
     function debounce<T extends (...args: any[]) => any>(func: T, delay: number) {
         let timer: number;
@@ -31,8 +38,17 @@
         return format(new Date(timestamp * 1000), 'MM/dd/yyyy');
     }
 
-    const TEST_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidGltZXN0YW1wIjoxNzAwNTg0MTg0LjkwNzgwMjh9.oRpCFHhXYZilNAKhorb2RbWl_7BKrmHxTC9J3mInCJM";
+    const TEST_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidGltZXN0YW1wIjoxNzAwNTg0MTg0LjkwNzgwMjh9.oRpCFHhXYZilNAKhorb2RbWl_7BKrmHxTC9J3mInCJM"; // Replace with your actual token
 
+    async function addGames() {
+        try {
+            isAddingGames = true; // Set the flag to indicate adding games
+            // Simulate an artificial delay (replace this with actual logic)
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } finally {
+            isAddingGames = false; // Reset the flag after the asynchronous operation is complete
+        }
+    }
 
     const fetchData = async () => {
         try {
@@ -50,7 +66,6 @@
             isSearching = false;
         }
     };
-
 
     const debouncedSearch = debounce(fetchData, 300);
 
@@ -90,6 +105,20 @@
               <p>Release Date: {formatReleaseDate(result.first_release_date)}</p>
               <p>Platforms: {result.platforms.join(', ')}</p>
               <p><a href={result.url} target="_blank" rel="noopener noreferrer">More Info</a></p>
+
+              <!-- Add Game button for each result -->
+              <button
+                    on:click={() => {
+                        games_to_add.push(result.id);
+                        games_to_add_length++;
+                        
+                    }}
+                    class="{addedGames.includes(result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
+                    disabled="{addedGames.includes(result.id)}"
+                    >
+                    {addedGames.includes(result.id) ? 'Game Added' : 'Add Game'}
+                </button>
+
             </div>
           </li>
         {/each}
@@ -97,13 +126,37 @@
 
       {#if isSearching && searchTerm !== ''}
         <div class="flex items-center justify-center mt-4">
-          <!-- Spinner for loading -->
+          <!-- Spinner for loading or searching -->
           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 border-r-2 border-b-2 border-gray-300"></div>
-          <span class="ml-2">Searching...</span>
+          <span class="ml-2">{isSearching ? 'Searching...' : 'Adding selected games...'}</span>
         </div>
       {/if}
 
-      <button on:click={() => showPopup = false} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">Close</button>
+      {#if isAddingGames}
+        <div class="flex items-center justify-center mt-4">
+          <!-- Loading spinner for adding games -->
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 border-r-2 border-b-2 border-gray-300"></div>
+          <span class="ml-2">Adding selected games...</span>
+        </div>
+      {/if}
+
+      <button on:click={async () => {
+        //TODO: make the button react on added
+        if (!isSearching && games_to_add.length === 0) {
+          showPopup = false;
+          searchResults = [];
+          games_to_add = [];
+          games_to_add_length = 0;
+        } else if (games_to_add.length > 0) {
+          await addGames();
+          showPopup = false;
+          searchResults = [];
+          games_to_add = [];
+          games_to_add_length = 0;
+        }
+      }} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">
+        {isSearching || games_to_add_length > 0 ? 'Add Selected Games' : 'Close'}
+      </button>
     </div>
   </div>
 {/if}

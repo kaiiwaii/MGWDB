@@ -14,6 +14,7 @@ import models
 load_dotenv()
 
 app = Sanic("MVDB")
+app.config.CORS_ORIGINS = "*"
 
 
 
@@ -108,9 +109,10 @@ async def get_games_from_api(request):
     search = request.args.get("search")
     if search:
         res = httpx.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
-                             f name, genres, cover, first_release_date, platforms, url;
+                             f name, genres, cover.url, first_release_date, platforms, url;
                              '''
                             , headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
+        print(res.json())
     return json(res.json())
 
 #REMEMBER: where id = (4356,189,444); (need to test multiple games on one request)

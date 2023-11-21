@@ -1,22 +1,28 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     export let showPopup: boolean;
-    let searchResults = [];
+    let searchResults: GameResult[] = [];
+    let searchTerm = '';
 
-    // Dummy API endpoint and key, replace with actual values
-    const IGDB_API_ENDPOINT = 'YOUR_IGDB_API_ENDPOINT';
-    const IGDB_API_KEY = 'YOUR_IGDB_API_KEY';
 
+    interface GameResult {
+        name: string;
+    }
+
+    const IGDB_CLIENT_ID = 'orhhwm21vn308qugaiup8lqxmzhp2g';
+    const IGDB_TOKEN = "yu3rak2poca82ga71382ftbtk134kr";
     const fetchData = async () => {
         try {
-            const response = await fetch(IGDB_API_ENDPOINT, {
+            const response = await fetch("https://api.igdb.com/v4/games", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'user-key': IGDB_API_KEY,
+                    "Access-Control-Allow-Origin": "https://api.igdb.com",
+                    'Client-ID': IGDB_CLIENT_ID,
+                    'Authorization': `Bearer ${IGDB_TOKEN}`,
                 },
                 body: JSON.stringify({
-                    // Add your query parameters
+                    query: `fields name; search ${searchTerm}`,
+                    // Add other query parameters
                 }),
             });
 
@@ -27,8 +33,12 @@
         }
     };
 
-    onMount(() => {
+    const handleSearch = () => {
         fetchData();
+    };
+
+    onMount(() => {
+        // Optional: Fetch data on component mount if needed
     });
 </script>
 
@@ -36,11 +46,20 @@
     <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
         <div class="bg-white p-4 rounded shadow-lg w-1/2">
             <!-- Search bar at the top center -->
-            <input type="text" placeholder="Search..." class="w-full p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-blue-500">
+            <input
+                type="search"
+                placeholder="Search..."
+                bind:value={searchTerm}
+                on:input={handleSearch}
+                class="w-full p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            >
 
-            <!-- List of 3 results -->
+            <!-- Search button -->
+            <button on:click={handleSearch} class="bg-blue-500 text-white px-4 py-2 rounded-full mb-4">Search</button>
+
+            <!-- List of results -->
             <ul>
-                {#each searchResults as result (result.id)}
+                {#each searchResults as result}
                     <li>{result.name}</li>
                 {/each}
             </ul>

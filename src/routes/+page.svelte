@@ -7,9 +7,10 @@
 <script lang="ts">
     import Popup from './SearchPopup.svelte';
 
-    export let showPopup: boolean;
-    const togglePopup = () => {
-        console.log("togglePopup")
+    export let showPopup: boolean = false;
+    const togglePopup = (event: Event) => {
+        console.log("togglePopup");
+        event.stopPropagation(); // Prevents the click event from propagating further
         showPopup = !showPopup;
     };
 
@@ -30,7 +31,6 @@
     }
 </style>
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -52,7 +52,7 @@
 
             <!-- Botón "+ Add Game" con margen y padding -->
             <div class="mr-4">
-                <button on:click={togglePopup} class="bg-green-500 text-white px-4 py-2 rounded-md">+ Add Game</button>
+                <button on:click={togglePopup} class="bg-green-500 text-white px-4 py-2 rounded-md z-10">+ Add Game</button>
             </div>
 
             <!-- Foto de perfil con dropdown -->

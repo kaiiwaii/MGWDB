@@ -1,26 +1,22 @@
 version: "2.2"
 services:
-  mvdbdb:
+  mgwdb:
     image: postgres:14.1-alpine
-    container_name: mvdb-db
+    container_name: mgwdb-db
     restart: always
     environment:
-      - POSTGRES_USER=mvdb
-      - POSTGRES_PASSWORD=mvdb
-      - APP_DB_USER=mvdb
-      - APP_DB_PASS=mvdb
-      - APP_DB_NAME=mvdb
+      - POSTGRES_USER=mgwdb
+      - POSTGRES_PASSWORD=mgwdb
+      - APP_DB_USER=mgwdb
+      - APP_DB_PASS=mgwdb
+      - APP_DB_NAME=mgwdb
     ports:
       - '5433:5432'
     networks:
-      - mvdbnet
-    #network_mode: "host"
+      - mgwdbnet
     volumes:
       - ./db-data/:/var/lib/postgresql/data
-      - ./db_scheme/scheme.sql:/docker-entrypoint-initdb.d/create_tables.sql
-
-
 
 networks:
-  mvdbnet:
+  mgwdbnet:
     driver: bridge

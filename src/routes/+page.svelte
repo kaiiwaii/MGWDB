@@ -1,18 +1,34 @@
-<script lang="ts" context="module">
-    export interface AppProps {
-        showPopup: boolean;
-    }
-</script>
 
 <script lang="ts">
     import Popup from './SearchPopup.svelte';
+    import GameList from './GameList.svelte';
+    import {type Game} from '$lib/gameModel.js'
+    import {onMount} from 'svelte';
+    
+    onMount(() => {
+        //TODO:Fetch games from both apis and put them in gameList and addedGamesIds
+    });
 
-    export let showPopup: boolean = false;
-    const togglePopup = (event: Event) => {
-        console.log("togglePopup");
-        event.stopPropagation(); // Prevents the click event from propagating further
-        showPopup = !showPopup;
+    let showSearchPopup: boolean = false;
+    let gamesNotSaved: boolean = false;
+    let searchTerm: string = "";
+
+    let temporaryGames: Game[] = [];
+
+    let addedGamesIds: number[] = [];
+    let gameList: Game[] = [];
+
+    const toggleSearchPopup = () => {
+        showSearchPopup = !showSearchPopup;
     };
+
+    function applyGames() {
+        //TODO: send request with games to server
+        gameList.push(...temporaryGames)
+        temporaryGames.length = 0;
+        gameList = gameList;
+        
+    }
 
 </script>
 
@@ -47,12 +63,16 @@
 
             <!-- Barra de búsqueda en el centro con margen y padding -->
             <div class="flex-grow">
-                <input type="search" placeholder="Buscar..." class="px-4 py-2 w-1/2 mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700">
+                <input type="search" placeholder="Buscar..." bind:value={searchTerm} class="px-4 py-2 w-1/2 mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700">
             </div>
-
+            {#if gamesNotSaved}
+            <div class="mr-4">
+                <button on:click={applyGames} class="bg-red-500 text-white px-4 py-2 rounded-md z-10">Save games</button>
+            </div>
+            {/if}
             <!-- Botón "+ Add Game" con margen y padding -->
             <div class="mr-4">
-                <button on:click={togglePopup} class="bg-green-500 text-white px-4 py-2 rounded-md z-10">+ Add Game</button>
+                <button on:click={toggleSearchPopup} class="bg-green-500 text-white px-4 py-2 rounded-md z-10">+ Add Game</button>
             </div>
 
             <!-- Foto de perfil con dropdown -->
@@ -66,7 +86,13 @@
             </div>
         </div>
     </nav>
-    <Popup bind:showPopup={showPopup} />
+    <Popup 
+        bind:showPopup={showSearchPopup} 
+        bind:gamesToAdd={temporaryGames}
+        bind:addedGamesIds={addedGamesIds}
+        bind:gamesNotSaved={gamesNotSaved}
+    />
+    <GameList {gameList} {temporaryGames} bind:searchTerm={searchTerm} />
 </body>
 </html>
 

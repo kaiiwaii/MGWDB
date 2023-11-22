@@ -44,21 +44,23 @@ async def setup_db(app):
     app.ctx.pool = await asyncpg.create_pool(DB_URL)
     async with app.ctx.pool.acquire() as con:
         await con.execute("""
+        DROP TABLE Games;
+        DROP TABLE Users;
         CREATE TABLE IF NOT EXISTS Users (
             id BIGSERIAL PRIMARY KEY,
             username varchar(64) NOT NULL, 
             password varchar(128) NOT NULL,
             email varchar(256) NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT NOW(),
-            review_template TEXT
+            review_template VARCHAR(4096)
         );
         CREATE TABLE IF NOT EXISTS Games (
             id INTEGER PRIMARY KEY,
             username BIGINT NOT NULL REFERENCES Users(id),
-            review TEXT,
-            description TEXT,
+            review VARCHAR(4096),
+            description VARCHAR(4096),
             hours DECIMAL,
-            platform VARCHAR(64)
+            platform smallint[2]
         );""")
 
 
@@ -127,15 +129,27 @@ async def get_games_from_api(request):
 #         return json({"error": "Invalid token"}, status=401, dumps=dumps)
     
 
-# @app.post("/addgames")
-# @validate(query=models.TokenReq)
-# async def add_games(request, query: models.TokenReq, id):
-#     try:
-#         id = int(id)
-#         await models.Game.create(id=id)
+@app.post("/addgames")
+@validate(query=models.TokenReq)
+async def add_games(request, query: models.TokenReq):
+    body = request.json()
+    if body:
+        try:
+            userid = jwt.decode(query.token, JWT_SECRET, algorithms=['HS256'])["id"]
+            async with app.ctx.pool.acquire() as con:
+                await con.executemany(
+                    '''
+                    INSERT INTO Games (username, review, description, hours, platform)
+                    VALUES ($1, $2, $3, $4, $5)
+                    ''',
+                    [(userid, row['review'], row['description'], row['hours'], row['platform']) for row in body["games"]]
+                )
+            
+        except jwt.exceptions.DecodeError:
+            return json({"error": "Invalid token"}, status=401)
+        
+    return json({"error": "No body"}, status=400)
 
-#     except:
-#         return json({"error": "Invalid ID"}, status=400, dumps=dumps)
 
 #@app.post("get_games")
 #

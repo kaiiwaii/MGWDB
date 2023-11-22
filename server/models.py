@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from sanic_motor import BaseModel
 from datetime import datetime
 
+
 @dataclass
 class LoginRequest:
     email: str

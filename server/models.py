@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from sanic_motor import BaseModel
 from datetime import datetime
 
 

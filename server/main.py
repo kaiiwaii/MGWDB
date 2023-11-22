@@ -44,8 +44,6 @@ async def setup_db(app):
     app.ctx.pool = await asyncpg.create_pool(DB_URL)
     async with app.ctx.pool.acquire() as con:
         await con.execute("""
-        DROP TABLE Games;
-        DROP TABLE Users;
         CREATE TABLE IF NOT EXISTS Users (
             id BIGSERIAL PRIMARY KEY,
             username varchar(64) NOT NULL, 

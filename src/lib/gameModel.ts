@@ -1,10 +1,10 @@
 export interface Game {
-    id:  number;
+    id: number;
     name: string;
-    cover: {url: string};
-    platforms: number[];
-    genres: string[];
-    first_release_date: number;
+    cover: { url: string } | null;
+    platforms: number[] | null;
+    genres: string[] | null;
+    first_release_date: number | null;
     url: string;
 
     review: string;

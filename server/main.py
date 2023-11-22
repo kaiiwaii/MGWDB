@@ -13,7 +13,7 @@ import models
 
 load_dotenv()
 
-app = Sanic("MVDB")
+app = Sanic("MGWDB")
 app.config.CORS_ORIGINS = "*"
 
 

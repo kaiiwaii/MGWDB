@@ -2,6 +2,7 @@
 <script lang="ts">
     import { type Game } from '$lib/gameModel.js';
     import GamePopup from './GamePopup.svelte';
+    import levenshtein from 'js-levenshtein';
     
     export let searchTerm: string = '';
     export let gameList: Game[] = [];
@@ -15,13 +16,17 @@
         show_game_popup = true;
     }
 
-    $: filteredGameList = gameList.filter(game =>
-        game.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    $: filteredGameList = gameList.map(game => {
+        if(levenshtein(searchTerm, game.name) <= 3) {
+            return game
+        }
+    });
 
-    $: filteredTemporaryGames = temporaryGames.filter(game =>
-        game.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    $: filteredTemporaryGames = temporaryGames.map(game => {
+        if(levenshtein(searchTerm, game.name) <= 3) {
+            return game
+        }
+    });
 
   </script>
   

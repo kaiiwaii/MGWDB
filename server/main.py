@@ -93,7 +93,7 @@ async def login(request, query: models.LoginRequest):
 
 @app.post("/signup")
 @validate(query=models.SignupRequest)
-async def signup(request, query: models.LoginRequest):
+async def signup(request, query: models.SignupRequest):
     password = bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8")
 
     async with app.ctx.pool.acquire() as con:

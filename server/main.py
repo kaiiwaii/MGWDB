@@ -16,7 +16,7 @@ import models
 load_dotenv()
 
 app = Sanic("MGWDB")
-# CORS_OPTIONS = {"resources": r"/*", "origins": None, "supports_credentials": True}
+# CORS_OPTIONS = {"resources": r"/*", "origins": ["http://localhost:5173/"], "supports_credentials": True, "methods": ["POST, GET, OPTIONS"]}
 # Extend(app, extensions=[CORS], config={"CORS": False, "CORS_OPTIONS": CORS_OPTIONS})
 
 JWT_SECRET = env['JWT_SECRET']
@@ -32,8 +32,9 @@ def write_token(data: dict):
 @app.middleware('response')
 async def add_cors_headers(request, response):
     response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
-    response.headers['Access-Control-Allow-Origin'] = 'origin'
+    response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5173'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Methods']='POST, OPTIONS, GET'
 
 
 async def refresh_token(app):
@@ -83,7 +84,7 @@ async def login(request, query: models.LoginRequest):
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
                 r = json({})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
-                r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7))
+                r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7), path=r"/*")
                 return r
             else:
                 return json({"error": "Invalid password"}, status=401)
@@ -194,4 +195,4 @@ async def get_games(request):
         return json({"error": "Invalid token"}, status=401)
 
 if __name__ == "__main__":
-    app.run(port=4321)
+    app.run(host="127.0.0.1",port=4321, debug=True)

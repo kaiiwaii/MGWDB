@@ -1,9 +1,12 @@
 import {type Game} from "$lib/gameModel.js"
 
-export const load = async ({fetch}) => {
+export const load = async () => {
     let res = await fetch(`http://127.0.0.1:4321/mygames`, {
         credentials: "include",
-        method: "GET"
+        method: "GET",
+        headers: {
+            "Access-Control-Allow-Origin": "http://127.0.0.1:4321"
+        }
     })
     let games: Game[] = await res.json()
     return {games}

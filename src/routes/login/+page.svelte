@@ -7,19 +7,18 @@
 
   
     async function handleLogin() {
-        let res = await fetch(`website`, {
+        let res = await fetch(`http://127.0.0.1:4321/login?email=${email}&password=${password}`, {
             method: "GET",
             credentials: "include",
             headers: {
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": "http://127.0.0.1:4321"
             }
         })
         let data = await res.json()
         if(res.status != 200) {
             error = data["error"]
         } else {
-
-            //goto("/home")
+            goto("/home")
             
         }     
     

@@ -1,13 +1,15 @@
 
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { format } from 'date-fns';
+    import {formatReleaseDate} from '$lib/utils.js'
     import { type Game } from '$lib/gameModel.js';
+
 
     export let showPopup: boolean;
     export let addedGamesIds: number[];
     export let gamesNotSaved: boolean = false;
     export let gamesToAdd: Game[] = [];
+    export let token: string;
 
     let searchTerm = '';
 
@@ -27,26 +29,21 @@
         } as T;
     }
 
-    function formatReleaseDate(timestamp: number): string {
-        return format(new Date(timestamp * 1000), 'MM/dd/yyyy');
-    }
-
     function closePopup() {
         showPopup = false;
         searchResults = [];
+        searchTerm = "";
         games_to_add_length = 0;
     }
-
-    const TEST_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidGltZXN0YW1wIjoxNzAwNTg0MTg0LjkwNzgwMjh9.oRpCFHhXYZilNAKhorb2RbWl_7BKrmHxTC9J3mInCJM"; // Replace with your actual token
 
     const fetchData = async () => {
         try {
 
             if(!isSearching) {
                 isSearching = true;
-                const response = await fetch(`http://127.0.0.1:4321/api/games?token=${TEST_TOKEN}&search=${searchTerm}`, {
+                const response = await fetch(`http://127.0.0.1:4321/api/searchgames?token=${token}&search=${searchTerm}`, {
                 method: 'GET',
-                headers: {"Access-Control-Allow-Origin": "*"}
+                credentials: "include"
                 });
 
                 const data = await response.json();
@@ -69,58 +66,61 @@
 
 {#if showPopup}
   <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-10">
-    <div class="bg-white p-4 rounded shadow-lg w-1/2">
+    <div class="bg-white p-4 rounded shadow-lg md:w-1/2">
       <!-- Search bar at the top center -->
-    
-    <div class="flex mb-4">
+      <div class="flex mb-4">
         <input
-        type="search"
-        placeholder="Search..."
-        bind:value={searchTerm}
-        on:input={debouncedSearch}
-        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-        >
+          type="search"
+          placeholder="Search..."
+          bind:value={searchTerm}
+          on:input={debouncedSearch}
+          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+        />
         <button on:click={fetchData} class="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
-        Search
+          Search
         </button>
-    </div>
+      </div>
 
-    <!-- List of results with images on the left and data on the right -->
-    <ul class="overflow-y-auto max-h-64">
+      <!-- List of results with images on the left and data on the right -->
+      <ul class="overflow-y-auto max-h-96">
         {#each searchResults as result}
-        <li class="flex items-center mb-4">
+          <li class="flex items-center mb-4">
             <!-- Image on the left -->
-            <img src={result.cover.url} alt={result.name} class="w-16 h-16 object-cover mr-4 rounded">
+            <img
+              src={`//images.igdb.com/igdb/image/upload/t_cover_big/${result.cover?.image_id}.jpg`}
+              alt={result.name}
+              class="w-16 h-16 object-cover mr-4 rounded"
+            />
 
             <!-- Data on the right -->
             <div>
-            <p class="font-bold">{result.name}</p>
-            <p>Genres: {result.genres.join(', ')}</p>
-            <p>Release Date: {formatReleaseDate(result.first_release_date)}</p>
-            <p>Platforms: {result.platforms.join(', ')}</p>
-            <p><a href={result.url} target="_blank" rel="noopener noreferrer">More Info</a></p>
+              <p class="font-bold">{result.name}</p>
+              <p>Genres: {result.genres?.map(g => g.name).join(', ')}</p>
+              <p>Release Date: {formatReleaseDate(result.first_release_date)}</p>
+              <p>Platforms: {result.platforms?.map(p => p.abbreviation).join(", ")}</p>
+              <p>
+                <a href={result.url} target="_blank" rel="noopener noreferrer">
+                  More Info
+                </a>
+              </p>
 
-            
-            <button
-                    on:click={() => {
-                        //TODO: react on added
-                        gamesToAdd.push(result);
-                        addedGamesIds.push(result.id);
-                        games_to_add_length++;
-                        gamesToAdd = gamesToAdd;
-                        
-                    }}
-                    class="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
-                    disabled="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id)}"
-                    >
-                    {gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'Game Added' : 'Add Game'}
-                </button>
-
+              <button
+                on:click={() => {
+                  //TODO: react on added
+                  gamesToAdd.push(result);
+                  addedGamesIds.push(result.id);
+                  games_to_add_length++;
+                  gamesToAdd = gamesToAdd;
+                }}
+                class="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
+                disabled="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id)}"
+              >
+                {gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'Game Added' : 'Add Game'}
+              </button>
             </div>
-        </li>
+          </li>
         {/each}
-    </ul>
-    
+      </ul>
 
       {#if isSearching && searchTerm !== ''}
         <div class="flex items-center justify-center mt-4">
@@ -130,10 +130,9 @@
         </div>
       {/if}
 
-
       <button on:click={() => {if(games_to_add_length>0){gamesNotSaved=true}closePopup()}} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">
         {games_to_add_length > 0 ? 'Add selected games and close' : 'Close'}
-    </button>
+      </button>
     </div>
   </div>
 {/if}

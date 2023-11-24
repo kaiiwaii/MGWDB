@@ -1,10 +1,12 @@
 from sanic import Sanic
 from sanic.response import json
-from sanic_ext import validate
+from sanic_ext import validate, Extend
+from sanic_cors import CORS
 import asyncio, asyncpg
 import httpx
 import jwt, bcrypt
 import time
+import datetime
 
 from os import environ as env
 from dotenv import load_dotenv
@@ -14,10 +16,8 @@ import models
 load_dotenv()
 
 app = Sanic("MGWDB")
-app.config.CORS_ORIGINS = "*"
-
-
-
+# CORS_OPTIONS = {"resources": r"/*", "origins": None, "supports_credentials": True}
+# Extend(app, extensions=[CORS], config={"CORS": False, "CORS_OPTIONS": CORS_OPTIONS})
 
 JWT_SECRET = env['JWT_SECRET']
 IGDB_ID = env['IGDB_ID']
@@ -28,6 +28,13 @@ DB_URL = env["DB_URL"]
 def write_token(data: dict):    
     token_bytes = jwt.encode(data, JWT_SECRET, algorithm='HS256')
     return token_bytes.decode("utf-8")
+
+@app.middleware('response')
+async def add_cors_headers(request, response):
+    response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
+    response.headers['Access-Control-Allow-Origin'] = 'origin'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+
 
 async def refresh_token(app):
     tk = httpx.post(
@@ -58,7 +65,7 @@ async def setup_db(app):
             review VARCHAR(4096),
             description VARCHAR(4096),
             hours DECIMAL,
-            platform smallint[2]
+            played_platform smallint[2]
         );""")
 
 
@@ -74,13 +81,14 @@ async def login(request, query: models.LoginRequest):
             """, query.email)
         if user:
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
-                return json(
-                    {"token": write_token({"id": user["id"], "timestamp": time.time()})}
-                )
+                r = json({})
+                tk = write_token({"id": user["id"], "timestamp": time.time()})
+                r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7))
+                return r
             else:
                 return json({"error": "Invalid password"}, status=401)
         else:
-            return json({"error": "Username not found"}, status=404)
+            return json({"error": "Email not found"}, status=404)
 
 @app.post("/signup")
 @validate(query=models.SignupRequest)
@@ -94,26 +102,23 @@ async def signup(request, query: models.LoginRequest):
 
     return json({}, status=200)
     
-@app.get("api/games")
-async def get_games_from_api(request):
-    tk = request.args.get("token")
-    if tk:
-        pass
-    else:
-        return json({"error": "No token"}, status=400)
-
+@app.get("api/searchgames")
+async def search_games_from_api(request):
     try:
-        jwt.decode(tk, JWT_SECRET, algorithms=['HS256'])
+        jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])
     except jwt.exceptions.DecodeError:
         return json({"error": "Invalid token"}, status=401)
+    
     search = request.args.get("search")
     if search:
-        res = httpx.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
-                             f name, genres, cover.url, first_release_date, platforms, url;
+        async with httpx.AsyncClient() as c:
+            res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
+                             f name, genres.name, cover.image_id, first_release_date, platforms.abbreviation, url;
                              '''
                             , headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
-        print(res.json())
-    return json(res.json())
+            return json(res.json())
+    else:
+        return json({"error": "Please add a search term"}, status=400)
 
 #REMEMBER: where id = (4356,189,444); (need to test multiple games on one request)
 # @app.get("/games")
@@ -128,19 +133,18 @@ async def get_games_from_api(request):
     
 
 @app.post("/addgames")
-@validate(query=models.TokenReq)
-async def add_games(request, query: models.TokenReq):
-    body = request.json()
+async def add_games(request):
+    body = request.json
     if body:
         try:
-            userid = jwt.decode(query.token, JWT_SECRET, algorithms=['HS256'])["id"]
+            userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
             async with app.ctx.pool.acquire() as con:
                 await con.executemany(
                     '''
-                    INSERT INTO Games (username, review, description, hours, platform)
-                    VALUES ($1, $2, $3, $4, $5)
+                    INSERT INTO Games (id, username, review, description, hours, played_platform)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                     ''',
-                    [(userid, row['review'], row['description'], row['hours'], row['platform']) for row in body["games"]]
+                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', [])) for row in body]
                 )
             
         except jwt.exceptions.DecodeError:
@@ -149,8 +153,45 @@ async def add_games(request, query: models.TokenReq):
     return json({"error": "No body"}, status=400)
 
 
-#@app.post("get_games")
-#
+@app.get("mygames")
+async def get_games(request):
+    try:
+        userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
+        db_games = []
+        async with app.ctx.pool.acquire() as con:
+            rows = await con.fetch("SELECT id, review, description, hours, played_platform from Games where username = $1", userid)
+            db_games = [{"id":str(row["id"]), "review":row.get('review'), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
+        
+
+        if len(db_games) > 0:
+            data = []
+            async with httpx.AsyncClient() as c:
+                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_games])});
+                    '''
+                ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
+                data = res.json()
+
+            merged_games = []
+            for game_info in data:
+                api_id = str(game_info["id"])
+                del game_info["id"]
+                matching_game = next((g for g in db_games if str(g["id"]) == api_id), None)
+                
+                if matching_game:
+                    # Create a new dictionary with the updated values
+                    updated_game = matching_game.copy()
+                    updated_game.update(game_info)
+                    merged_games.append(updated_game)
+                else:
+                    # If the ID is not found in db_games, add the original dictionary from data
+                    merged_games.append(game_info)     
+
+            return json(merged_games)
+
+            
+
+    except jwt.exceptions.DecodeError:
+        return json({"error": "Invalid token"}, status=401)
 
 if __name__ == "__main__":
     app.run(port=4321)

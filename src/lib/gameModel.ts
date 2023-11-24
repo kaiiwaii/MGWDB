@@ -1,9 +1,9 @@
 export interface Game {
     id: number;
     name: string;
-    cover: { url: string } | null;
-    platforms: number[] | null;
-    genres: string[] | null;
+    cover: { image_id: string } | null;
+    platforms: {abbreviation: string}[] | null;
+    genres: {name: string}[] | null;
     first_release_date: number | null;
     url: string;
 

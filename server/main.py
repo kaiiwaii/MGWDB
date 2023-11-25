@@ -174,13 +174,17 @@ async def get_games(request):
                     '''
                 ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
                 api_data = res.json()
-    
+
+        api_data_mapped = {el['id']: el for el in api_data}
+
         for db_entry in db_data:
             id_key = db_entry['id']
-            for api_entry in api_data:
-                if api_entry['id'] == id_key:
-                    db_entry.update(api_entry)
-                    break
+            try:
+                api_entry = api_data_mapped[id_key]
+            except:
+                continue
+            db_entry.update(api_entry)
+
 
         print(db_data)
         return json(db_data)

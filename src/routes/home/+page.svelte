@@ -6,7 +6,6 @@
     import {onMount} from 'svelte';
 
     let showSearchPopup: boolean = false;
-    let TOKEN: string;
 
     export let data;
 
@@ -15,19 +14,18 @@
 
     let searchTerm: string = "";
 
-    let temporaryGames: Game[] = [];
+    let temporaryGames: Game[];
 
-    let addedGamesIds: number[] = [];
-    let gameList: Game[] = [];
+    let gameList: Game[];
 
     const toggleSearchPopup = () => {
         showSearchPopup = !showSearchPopup;
     };
 
     onMount(() => {
-        gameList = data.games;
-        
-    });
+        console.log(data.games)
+        gameList = data.games.length>0 ? data.games : []
+    })
 
 
     function applyGames() {
@@ -124,12 +122,11 @@
     </nav>
     <Popup 
         bind:showPopup={showSearchPopup} 
-        bind:gamesToAdd={temporaryGames}
-        bind:addedGamesIds={addedGamesIds}
+        bind:temporaryGames={temporaryGames}
+        bind:gameList={gameList}
         bind:gamesNotSaved={gamesNotSaved}
-        token={TOKEN}
     />
-    <GameList {gameList} {temporaryGames} {searchTerm} />
+    <GameList gameList={gameList} temporaryGames={temporaryGames} {searchTerm} />
 </body>
 </html>
 

@@ -84,7 +84,7 @@ async def login(request, query: models.LoginRequest):
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
                 r = json({})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
-                r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7), path=r"/*")
+                r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7), path="/")
                 return r
             else:
                 return json({"error": "Invalid password"}, status=401)
@@ -136,6 +136,7 @@ async def search_games_from_api(request):
 @app.post("/addgames")
 async def add_games(request):
     body = request.json
+    print(body)
     if body:
         try:
             userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
@@ -150,44 +151,39 @@ async def add_games(request):
             
         except jwt.exceptions.DecodeError:
             return json({"error": "Invalid token"}, status=401)
-        
-    return json({"error": "No body"}, status=400)
+    else:
+        return json({"error": "No body"}, status=400) 
+    
 
 
 @app.get("mygames")
 async def get_games(request):
     try:
         userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
-        db_games = []
+
+        db_data = []
         async with app.ctx.pool.acquire() as con:
             rows = await con.fetch("SELECT id, review, description, hours, played_platform from Games where username = $1", userid)
-            db_games = [{"id":str(row["id"]), "review":row.get('review'), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
+            db_data = [{"id":int(row["id"]), "review":row.get('review'), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
         
 
-        if len(db_games) > 0:
-            data = []
+        if len(db_data) > 0:
+            api_data = []
             async with httpx.AsyncClient() as c:
-                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_games])});
+                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_data])});
                     '''
                 ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
-                data = res.json()
+                api_data = res.json()
+    
+        for db_entry in db_data:
+            id_key = db_entry['id']
+            for api_entry in api_data:
+                if api_entry['id'] == id_key:
+                    db_entry.update(api_entry)
+                    break
 
-            merged_games = []
-            for game_info in data:
-                api_id = str(game_info["id"])
-                del game_info["id"]
-                matching_game = next((g for g in db_games if str(g["id"]) == api_id), None)
-                
-                if matching_game:
-                    # Create a new dictionary with the updated values
-                    updated_game = matching_game.copy()
-                    updated_game.update(game_info)
-                    merged_games.append(updated_game)
-                else:
-                    # If the ID is not found in db_games, add the original dictionary from data
-                    merged_games.append(game_info)     
-
-            return json(merged_games)
+        print(db_data)
+        return json(db_data)
 
             
 

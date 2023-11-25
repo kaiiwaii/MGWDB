@@ -1,15 +1,13 @@
 
 <script lang="ts">
-    import { onMount } from 'svelte';
     import {formatReleaseDate} from '$lib/utils.js'
     import { type Game } from '$lib/gameModel.js';
 
 
     export let showPopup: boolean;
-    export let addedGamesIds: number[];
+    export let gameList: Game[];
     export let gamesNotSaved: boolean = false;
-    export let gamesToAdd: Game[] = [];
-    export let token: string;
+    export let temporaryGames: Game[] = [];
 
     let searchTerm = '';
 
@@ -36,12 +34,13 @@
         games_to_add_length = 0;
     }
 
+
     const fetchData = async () => {
         try {
 
             if(!isSearching) {
                 isSearching = true;
-                const response = await fetch(`http://127.0.0.1:4321/api/searchgames?token=${token}&search=${searchTerm}`, {
+                const response = await fetch(`http://127.0.0.1:4321/api/searchgames?search=${searchTerm}`, {
                 method: 'GET',
                 credentials: "include"
                 });
@@ -59,9 +58,6 @@
 
     const debouncedSearch = debounce(fetchData, 300);
 
-    onMount(() => {
-        // Optional: Fetch data on component mount if needed
-    });
 </script>
 
 {#if showPopup}
@@ -107,15 +103,15 @@
               <button
                 on:click={() => {
                   //TODO: react on added
-                  gamesToAdd.push(result);
-                  addedGamesIds.push(result.id);
+                  temporaryGames.push(result);
                   games_to_add_length++;
-                  gamesToAdd = gamesToAdd;
+                  temporaryGames = temporaryGames;
+                  console.log(temporaryGames);
                 }}
-                class="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
-                disabled="{gamesToAdd.includes(result) || addedGamesIds.includes(result.id)}"
+                class="{temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
+                disabled="{temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id)}"
               >
-                {gamesToAdd.includes(result) || addedGamesIds.includes(result.id) ? 'Game Added' : 'Add Game'}
+                {temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id) ? 'Game Added' : 'Add Game'}
               </button>
             </div>
           </li>

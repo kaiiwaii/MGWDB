@@ -6,6 +6,7 @@
     export let visible: boolean = false;
     export let game: Game;
     export let gameList: Game[];
+    export let temporaryGames: Game[];
 
 
     const saveAndExit = () => {
@@ -17,10 +18,15 @@
     function modifyGame(game: Game) {
         //find game in gameList
         let idx = gameList.findIndex(g => g.id == game.id);
-        //update game
-        gameList[idx] = game;
-        //update gameList
-        gameList = gameList;
+        if(idx) {
+          gameList[idx] = game;
+          gameList = gameList;
+        } else {
+          let idx = temporaryGames.findIndex(g => g.id == game.id);
+          temporaryGames[idx] = game;
+          temporaryGames = temporaryGames;
+        }
+        
     }
 
   </script>

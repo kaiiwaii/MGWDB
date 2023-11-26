@@ -27,7 +27,10 @@ DB_URL = env["DB_URL"]
 
 def write_token(data: dict):    
     token_bytes = jwt.encode(data, JWT_SECRET, algorithm='HS256')
-    return token_bytes.decode("utf-8")
+    try:
+        return token_bytes.decode("utf-8")
+    except:
+        return token_bytes
 
 @app.middleware('response')
 async def add_cors_headers(request, response):

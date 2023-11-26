@@ -2,6 +2,16 @@
 <script lang="ts">
     import { type Game } from '$lib/gameModel.js';
     import {formatReleaseDate} from '$lib/utils.js'
+    import 'bytemd/dist/index.css'
+
+    import { Editor, Viewer } from 'bytemd'
+
+    let value;
+
+    function handleChange(e) {
+      value = e.detail.value
+    }
+
     
     import {showGamePopup, gameList, temporaryGames, gamesNotSaved} from './stores.js'    
   
@@ -12,6 +22,8 @@
       modifyGame(game);
       $showGamePopup = false;
     };
+
+    
 
     function modifyGame(game: Game) {
 
@@ -30,7 +42,7 @@
         } else {
           let idx = $temporaryGames.findIndex(g => g.id == game.id);
           console.log("here")
-          if(JSON.stringify($temporaryGames[idx]) !== game) {
+          if(JSON.stringify($temporaryGames[idx]) !== JSON.stringify(game)) {
             console.log("correct")
             $temporaryGames[idx] = game;
             $temporaryGames = $temporaryGames;
@@ -41,8 +53,8 @@
         
     }
 
-  </script>
-  
+</script>
+
   {#if $showGamePopup}
     <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center">
       <div class="absolute w-full h-full bg-black opacity-50"></div>
@@ -53,13 +65,13 @@
           <h2 class="text-xl font-semibold mt-4">{game.name}</h2>
           
           <label for="description" class="text-gray-500">Description:</label>
-          <textarea id="description" class="w-full rounded-md p-2 mt-2" bind:value={game.description}></textarea>
+            <Editor {value} on:change={handleChange} />
           
           <label for="review" class="text-gray-500 mt-2">Review:</label>
           <textarea id="review" class="w-full rounded-md p-2" bind:value={game.review}></textarea>
   
           <label for="hours" class="text-gray-500 mt-2">Hours Played:</label>
-          <input type="text" id="hours" class="w-full rounded-md p-2" bind:value={game.hours} />
+          <input type="number" id="hours" class="w-full rounded-md p-2" bind:value={game.hours} />
   
           <label for="played_platform" class="text-gray-500 mt-2">Played Platform:</label>
           <textarea id="played_platform" class="w-full rounded-md p-2" bind:value={game.played_platform}></textarea>

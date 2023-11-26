@@ -66,7 +66,7 @@ async def setup_db(app):
             review VARCHAR(4096),
             description VARCHAR(4096),
             hours DECIMAL,
-            played_platform smallint[2]
+            played_platform INTEGER
         );""")
 
 
@@ -114,7 +114,7 @@ async def search_games_from_api(request):
     if search:
         async with httpx.AsyncClient() as c:
             res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
-                             f name, genres.name, cover.image_id, first_release_date, platforms.abbreviation, url;
+                             f name, genres.name, cover.image_id, first_release_date, platforms.id, platforms.abbreviation, url;
                              '''
                             , headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
             return json(res.json())
@@ -146,7 +146,7 @@ async def add_games(request):
                     INSERT INTO Games (id, username, review, description, hours, played_platform)
                     VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
                     ''',
-                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', [])) for row in body]
+                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', -1)) for row in body]
                 )
                 return json({}, status=200)
             
@@ -154,10 +154,31 @@ async def add_games(request):
             return json({"error": "Invalid token"}, status=401)
     else:
         return json({"error": "No body"}, status=400) 
-    
 
 
-@app.get("mygames")
+@app.post("/deletegames")
+async def delete_games(request):
+    body = request.json
+    if body:
+        try:
+            userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
+            async with app.ctx.pool.acquire() as con:
+                await con.executemany(
+                    '''
+                    DELETE FROM Games where id=$1 and username=$2
+                    ''',
+                    [(row['id'], userid) for row in body]
+                )
+                return json({}, status=200)
+            
+        except jwt.exceptions.DecodeError:
+            return json({"error": "Invalid token"}, status=401)
+    else:
+        return json({"error": "No body"}, status=400) 
+
+
+
+@app.get("/mygames")
 async def get_games(request):
     try:
         userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
@@ -171,20 +192,22 @@ async def get_games(request):
         if len(db_data) > 0:
             api_data = []
             async with httpx.AsyncClient() as c:
-                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_data])});
+                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_data])});
                     '''
                 ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
+                print(res.text)
                 api_data = res.json()
+                
 
-        api_data_mapped = {el['id']: el for el in api_data}
+                api_data_mapped = {el['id']: el for el in api_data}
 
-        for db_entry in db_data:
-            id_key = db_entry['id']
-            try:
-                api_entry = api_data_mapped[id_key]
-            except:
-                continue
-            db_entry.update(api_entry)
+                for db_entry in db_data:
+                    id_key = db_entry['id']
+                    try:
+                        api_entry = api_data_mapped[id_key]
+                    except:
+                        continue
+                    db_entry.update(api_entry)
 
 
         print(db_data)

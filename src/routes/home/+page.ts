@@ -1,4 +1,5 @@
 import {type Game} from "$lib/gameModel.js"
+import { goto } from "$app/navigation";
 
 export const load = async ({fetch}) => {
 
@@ -6,6 +7,12 @@ export const load = async ({fetch}) => {
         credentials: "include",
         method: "GET"
     })
-    let games: Game[] = await res.json()
-    return {games}
+    if(res.status == 401) {
+        goto("/login")
+        return
+    } else {
+        let games: Game[] = await res.json()
+        return {games}
+    }
+    
 }

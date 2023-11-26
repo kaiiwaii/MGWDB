@@ -1,11 +1,20 @@
 class RatingSystem {
-    constructor(name) {
-        this.name = name
+
+    constructor() {
+        this.name = "MyRatingSystem"
         this.elements = []
     }
 
     parse(jsonobj) {
-        let elements = Object.keys(jsonobj)
+        let name = jsonobj.name;
+        delete jsonobj.name;
+        if (!jsonobj.elements) {
+            throw {
+                name: "InvalidDataError",
+                message: "Please create elements"
+            }
+        }
+        let elements = Object.keys(jsonobj.elements)
         let parsed_elements = []
         if(elements.length == 0) {
             throw {

@@ -64,13 +64,19 @@ async def setup_db(app):
             review_template VARCHAR(4096)
         );
         CREATE TABLE IF NOT EXISTS Games (
-            id INTEGER PRIMARY KEY,
+            inner_id BIGSERIAL PRIMARY KEY,
+            id INTEGER,
             username BIGINT NOT NULL REFERENCES Users(id),
-            review VARCHAR(4096),
-            description VARCHAR(4096),
-            hours DECIMAL,
-            played_platform INTEGER
-        );""")
+            review VARCHAR(4096) DEFAULT '',
+            description VARCHAR(4096) DEFAULT '',
+            hours DOUBLE PRECISION DEFAULT 0,
+            played_platform INTEGER DEFAULT -1
+        );
+                          
+        CREATE UNIQUE INDEX games_unique_idx
+                ON Games(id, username);
+                          
+        """)
 
 
 @app.get("/login")
@@ -147,7 +153,7 @@ async def add_games(request):
                 await con.executemany(
                     '''
                     INSERT INTO Games (id, username, review, description, hours, played_platform)
-                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
+                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id, username) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
                     ''',
                     [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', -1)) for row in body]
                 )

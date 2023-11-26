@@ -2,12 +2,7 @@
 <script lang="ts">
     import {formatReleaseDate} from '$lib/utils.js'
     import { type Game } from '$lib/gameModel.js';
-
-
-    export let showPopup: boolean;
-    export let gameList: Game[];
-    export let gamesNotSaved: boolean = false;
-    export let temporaryGames: Game[] = [];
+    import {showSearchPopup, gamesNotSaved, temporaryGames, gameList} from './stores.js';
 
     let searchTerm = '';
 
@@ -28,7 +23,7 @@
     }
 
     function closePopup() {
-        showPopup = false;
+        $showSearchPopup = false;
         searchResults = [];
         searchTerm = "";
         games_to_add_length = 0;
@@ -60,7 +55,7 @@
 
 </script>
 
-{#if showPopup}
+{#if $showSearchPopup}
   <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-10">
     <div class="bg-white p-4 rounded shadow-lg md:w-1/2">
       <!-- Search bar at the top center -->
@@ -102,16 +97,14 @@
 
               <button
                 on:click={() => {
-                  //TODO: react on added
-                  temporaryGames.push(result);
+                  $temporaryGames.push(result);
+                  $temporaryGames = $temporaryGames;
                   games_to_add_length++;
-                  temporaryGames = temporaryGames;
-                  console.log(temporaryGames);
                 }}
-                class="{temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
-                disabled="{temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id)}"
+                class="{$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
+                disabled="{$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id)}"
               >
-                {temporaryGames.some(g=>g.id === result.id) || gameList.some(g=>g.id === result.id) ? 'Game Added' : 'Add Game'}
+                {$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id) ? 'Game Added' : 'Add Game'}
               </button>
             </div>
           </li>
@@ -126,7 +119,7 @@
         </div>
       {/if}
 
-      <button on:click={() => {if(games_to_add_length>0){gamesNotSaved=true}closePopup()}} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">
+      <button on:click={() => {if(games_to_add_length>0){$gamesNotSaved=true}closePopup()}} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">
         {games_to_add_length > 0 ? 'Add selected games and close' : 'Close'}
       </button>
     </div>

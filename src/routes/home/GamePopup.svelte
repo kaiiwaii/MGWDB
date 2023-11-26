@@ -2,36 +2,48 @@
 <script lang="ts">
     import { type Game } from '$lib/gameModel.js';
     import {formatReleaseDate} from '$lib/utils.js'
+    
+    import {showGamePopup, gameList, temporaryGames, gamesNotSaved} from './stores.js'    
   
-    export let visible: boolean = false;
     export let game: Game;
-    export let gameList: Game[];
-    export let temporaryGames: Game[];
-
 
     const saveAndExit = () => {
       // Call the save function
       modifyGame(game);
-      visible = false;
+      $showGamePopup = false;
     };
 
     function modifyGame(game: Game) {
-        //find game in gameList
-        let idx = gameList.findIndex(g => g.id == game.id);
-        if(idx) {
-          gameList[idx] = game;
-          gameList = gameList;
+
+        let idx = $gameList.findIndex(g => g.id == game.id);
+        if(idx != -1) {
+          if($gameList[idx] !== game) {
+            console.log($gameList[idx])
+            console.log(game);
+            console.log("here")
+            $temporaryGames.push($gameList.splice(idx, 1)[0]);
+            $gameList = $gameList;
+            $temporaryGames = $temporaryGames;
+            $gamesNotSaved = true
+          }
+          
         } else {
-          let idx = temporaryGames.findIndex(g => g.id == game.id);
-          temporaryGames[idx] = game;
-          temporaryGames = temporaryGames;
+          let idx = $temporaryGames.findIndex(g => g.id == game.id);
+          console.log("here")
+          if(JSON.stringify($temporaryGames[idx]) !== game) {
+            console.log("correct")
+            $temporaryGames[idx] = game;
+            $temporaryGames = $temporaryGames;
+          }
+          
+          
         }
         
     }
 
   </script>
   
-  {#if visible}
+  {#if $showGamePopup}
     <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center">
       <div class="absolute w-full h-full bg-black opacity-50"></div>
       <div class="relative z-10 p-4 bg-white rounded-md shadow-md w-4/5 max-h-[45rem] overflow-y-auto">

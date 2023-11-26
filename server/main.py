@@ -144,10 +144,11 @@ async def add_games(request):
                 await con.executemany(
                     '''
                     INSERT INTO Games (id, username, review, description, hours, played_platform)
-                    VALUES ($1, $2, $3, $4, $5, $6)
+                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
                     ''',
                     [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', [])) for row in body]
                 )
+                return json({}, status=200)
             
         except jwt.exceptions.DecodeError:
             return json({"error": "Invalid token"}, status=401)

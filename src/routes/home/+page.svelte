@@ -1,36 +1,34 @@
-
 <script lang="ts">
     import Popup from './SearchPopup.svelte';
     import GameList from './GameList.svelte';
     import {type Game} from '$lib/gameModel.js';
     import {onMount} from 'svelte';
+    import { get } from 'svelte/store';
 
-    let showSearchPopup: boolean = false;
+    import {
+        gameList, 
+        gamesNotSaved, 
+        isSavingGames, 
+        librarySearchTerm, 
+        showSearchPopup, 
+        temporaryGames
+    } from './stores.js';
+
 
     export let data;
 
-    let gamesNotSaved: boolean = false;
-    let isSavingGames: boolean = false;
-
-    let searchTerm: string = "";
-
-    let temporaryGames: Game[];
-
-    let gameList: Game[];
-
     const toggleSearchPopup = () => {
-        showSearchPopup = !showSearchPopup;
+        $showSearchPopup = !$showSearchPopup;
     };
 
     onMount(() => {
-        console.log(data.games)
-        gameList = data.games.length>0 ? data.games : []
+        $gameList = data.games.length>0 ? data.games : [];
     })
 
 
     function applyGames() {
         // Disable the "Add Game" button and show loading spinner
-        isSavingGames = true;
+        $isSavingGames = true;
 
         // TODO: send request with games to server
         // Simulating an asynchronous operation with a timeout
@@ -38,18 +36,18 @@
         try {
             fetch(`http://127.0.0.1:4321/addgames`, {
                 method: "POST",
-                body: JSON.stringify(temporaryGames),
+                body: JSON.stringify($temporaryGames),
                 credentials: "include"
             })
-            gameList.push(...temporaryGames)
-            temporaryGames.length = 0;
-            gamesNotSaved = false;
-            isSavingGames = false;
-            gameList = gameList
+            $gameList.push(...$temporaryGames)
+            $gameList = $gameList;
+            $temporaryGames.length = 0;
+            $gamesNotSaved = false;
+            $isSavingGames = false;
         } catch (error) {
             console.log(error)
             alert("Error saving games")
-            isSavingGames = false;
+            $isSavingGames = false;
         }
     }
 
@@ -86,23 +84,23 @@
 
             <!-- Barra de búsqueda en el centro con margen y padding -->
             <div class="flex-grow w-full md:w-1/2 md:mr-4 mb-4 md:mb-0">
-                <input type="search" placeholder="Buscar..." bind:value={searchTerm} class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700">
+                <input type="search" placeholder="Buscar..." bind:value={$librarySearchTerm} class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700">
             </div>
 
             <!-- Botones en una fila con espacio entre ellos -->
             <div class="flex mb-4 md:mb-0 md:ml-4">
             
-                {#if gamesNotSaved}
-                    <div class="{isSavingGames ? 'opacity-50 cursor-not-allowed' : ''} mr-4">
-                        <button on:click={applyGames} disabled={isSavingGames} class="bg-red-500 text-white px-4 py-2 rounded-md z-10">
-                            {isSavingGames ? 'Saving...' : 'Save games'}
+                {#if $gamesNotSaved}
+                    <div class="{$isSavingGames ? 'opacity-50 cursor-not-allowed' : ''} mr-4">
+                        <button on:click={applyGames} disabled={$isSavingGames} class="bg-red-500 text-white px-4 py-2 rounded-md z-10">
+                            {$isSavingGames ? 'Saving...' : 'Save games'}
                         </button>
                     </div>
                 {/if}
             
                 <!-- Botón "+ Add Game" con margen y padding -->
                 <div>
-                    <button on:click={toggleSearchPopup} disabled={isSavingGames} class="{isSavingGames ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-500 text-white'} px-4 py-2 rounded-md z-10">
+                    <button on:click={toggleSearchPopup} disabled={$isSavingGames} class="{$isSavingGames ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-500 text-white'} px-4 py-2 rounded-md z-10">
                         Add Game
                     </button>
                 </div>
@@ -120,13 +118,8 @@
             </div>
         </div>
     </nav>
-    <Popup 
-        bind:showPopup={showSearchPopup} 
-        bind:temporaryGames={temporaryGames}
-        bind:gameList={gameList}
-        bind:gamesNotSaved={gamesNotSaved}
-    />
-    <GameList gameList={gameList} temporaryGames={temporaryGames} {searchTerm} />
+    <Popup/>
+    <GameList/>
 </body>
 </html>
 

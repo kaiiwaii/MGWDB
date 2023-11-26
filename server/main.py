@@ -73,7 +73,7 @@ async def setup_db(app):
             played_platform INTEGER DEFAULT -1
         );
                           
-        CREATE UNIQUE INDEX games_unique_idx
+        CREATE UNIQUE INDEX IF NOT EXISTS games_unique_idx
                 ON Games(id, username);
                           
         """)

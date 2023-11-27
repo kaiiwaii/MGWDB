@@ -66,7 +66,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MGWDB</title>
     </head>
-    <body class="bg-gray-100">
+    <body class="bg-white">
         <nav class="bg-blue-500 p-4">
             <div
                 class="container mx-auto flex flex-col md:flex-row items-center"

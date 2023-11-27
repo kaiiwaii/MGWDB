@@ -1,57 +1,55 @@
 <!-- GamePopup.svelte -->
 <script lang="ts">
-    import { type Game } from '$lib/gameModel.js';
-    import {formatReleaseDate} from '$lib/utils.js'
-    import 'bytemd/dist/index.css'
+  import { type Game } from '$lib/gameModel.js';
+  import {formatReleaseDate} from '$lib/utils.js'
+  import { onMount } from 'svelte';
+  import {showGamePopup, gameList, temporaryGames, gamesNotSaved} from './stores.js'    
 
-    import { Editor, Viewer } from 'bytemd'
-
-    let value;
-
-    function handleChange(e) {
-      value = e.detail.value
-    }
-
-    
-    import {showGamePopup, gameList, temporaryGames, gamesNotSaved} from './stores.js'    
+  import InlineEditor from '@ckeditor/ckeditor5-build-inline';
   
-    export let game: Game;
+  export let game: Game;
 
-    const saveAndExit = () => {
-      // Call the save function
-      modifyGame(game);
-      $showGamePopup = false;
-    };
+  const saveAndExit = () => {
+    // Call the save function
+    game.description = description_editor.getData();
+    modifyGame(game);
+    $showGamePopup = false;
+  };
+  let description_editor;
 
-    
+  function modifyGame(game: Game) {
 
-    function modifyGame(game: Game) {
+      let idx = $gameList.findIndex(g => g.id == game.id);
 
-        let idx = $gameList.findIndex(g => g.id == game.id);
-        if(idx != -1) {
-          if($gameList[idx] !== game) {
-            console.log($gameList[idx])
-            console.log(game);
-            console.log("here")
-            $temporaryGames.push($gameList.splice(idx, 1)[0]);
-            $gameList = $gameList;
-            $temporaryGames = $temporaryGames;
-            $gamesNotSaved = true
-          }
-          
-        } else {
-          let idx = $temporaryGames.findIndex(g => g.id == game.id);
-          console.log("here")
-          if(JSON.stringify($temporaryGames[idx]) !== JSON.stringify(game)) {
-            console.log("correct")
-            $temporaryGames[idx] = game;
-            $temporaryGames = $temporaryGames;
-          }
-          
-          
+      console.log($gameList[idx])
+      console.log(game)
+
+      if(idx != -1) {
+        if($gameList[idx] !== game) {
+          $temporaryGames.push($gameList.splice(idx, 1)[0]);
+          $gameList = $gameList;
+          $temporaryGames = $temporaryGames;
+          $gamesNotSaved = true
         }
         
-    }
+      } else {
+        let idx = $temporaryGames.findIndex(g => g.id == game.id);
+        console.log("here")
+        if(JSON.stringify($temporaryGames[idx]) !== JSON.stringify(game)) {
+          console.log("correct")
+          $temporaryGames[idx] = game;
+          $temporaryGames = $temporaryGames;
+        }
+      }      
+  }
+  onMount(() => {
+      InlineEditor
+      .create( document.querySelector('#description_editor') )
+      .then(newEditor => {description_editor = newEditor})
+      .catch( error => {
+          console.error( error );
+      } );
+      })
 
 </script>
 
@@ -65,7 +63,7 @@
           <h2 class="text-xl font-semibold mt-4">{game.name}</h2>
           
           <label for="description" class="text-gray-500">Description:</label>
-            <Editor {value} on:change={handleChange} />
+          <div id="description_editor"></div>
           
           <label for="review" class="text-gray-500 mt-2">Review:</label>
           <textarea id="review" class="w-full rounded-md p-2" bind:value={game.review}></textarea>

@@ -1,6 +1,8 @@
 import {type Game} from "$lib/gameModel.js"
 import { goto } from "$app/navigation";
 
+export const ssr = false;
+
 export const load = async ({fetch}) => {
 
     let res = await fetch(`http://127.0.0.1:4321/mygames`, {

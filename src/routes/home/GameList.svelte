@@ -21,7 +21,7 @@
 
 
 {#if $gameList.length > 0 || $temporaryGames.length > 0}
-<div class="mt-4 flex flex-wrap justify-center z-0">
+<div class="mt-4 flex flex-wrap justify-center z-0 bg-white">
   {#each filteredGameList as game}
     <div class="m-4 cursor-pointer relative" on:click={() => show_game_popup(game)}>
       <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="h-32 w-32 object-cover rounded-md shadow-md" />

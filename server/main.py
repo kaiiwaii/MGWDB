@@ -155,7 +155,7 @@ async def add_games(request):
                     INSERT INTO Games (id, username, review, description, hours, played_platform)
                     VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id, username) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
                     ''',
-                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), row.get('played_platform', -1)) for row in body]
+                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), int(row.get('played_platform', -1))) for row in body]
                 )
                 return json({}, status=200)
             

@@ -6,6 +6,8 @@
     import {librarySearchTerm, gameList, temporaryGames, showGamePopup} from './stores.js'
 
     let selectedGame: Game;
+    $: console.log($gameList);
+    $: console.log($temporaryGames);
 
     function show_game_popup(game: Game) {
         selectedGame = game;
@@ -42,7 +44,7 @@
     </div>
   {/each}
   {#if $showGamePopup}
-      <GamePopup game={selectedGame}/>
+      <GamePopup {selectedGame}/>
     {/if}
   </div>
 {/if}

@@ -1,5 +1,6 @@
 {
-    "MyRatingSystem": {
+    "name": "MyRatingSystem",
+    "elements": {
         "Art": {
             "weight": 30,
             "categories": {
@@ -10,8 +11,10 @@
         },
         "Music": {
             "weight": 20,
-            "categories": {}
-        },
-        "_extras_": {}
+            "categories": {
+                "soundtrack": 80,
+                "effects": 20
+            }
+        }
     }
 }

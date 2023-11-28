@@ -86,12 +86,12 @@ async def login(request, query: models.LoginRequest):
     async with app.ctx.pool.acquire() as con:
         user = await con.fetchrow(
             """
-            SELECT id, email, password FROM Users
+            SELECT id, email, password, review_template FROM Users
             WHERE email = $1;
             """, query.email)
         if user:
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
-                r = json({})
+                r = json({"template": user["review_template"]})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
                 r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now() + datetime.timedelta(days=7), path="/")
                 return r
@@ -141,11 +141,34 @@ async def search_games_from_api(request):
 #     except jwt.exceptions.DecodeError:
 #         return json({"error": "Invalid token"}, status=401, dumps=dumps)
     
+@app.post("addtemplate")
+async def add_template(request):
+    body = request.json
+    if body:
+        template = body.get("template")
+        if not template:
+            return json({"error": "No template"})
+        try:
+            userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
+            async with app.ctx.pool.acquire() as con:
+                await con.execute(
+                    '''
+                    UPDATE Users SET review_template = $1 WHERE id=$2
+                    ''',
+                 template, int(userid)
+                )
+                return json({}, status=200)
+            
+        except jwt.exceptions.DecodeError:
+            return json({"error": "Invalid token"}, status=401)
+    else:
+        return json({"error": "No body"}, status=400) 
+    
 
 @app.post("/addgames")
 async def add_games(request):
     body = request.json
-    print(body)
+
     if body:
         try:
             userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]

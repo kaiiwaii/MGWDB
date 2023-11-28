@@ -1,5 +1,6 @@
 <script lang="ts">
     import {goto} from '$app/navigation';
+    import { reviewTemplate } from '../home/stores.js';
 
     let email = "";
     let password = "";
@@ -15,6 +16,7 @@
             }
         })
         let data = await res.json()
+        reviewTemplate.set(data["template"])
         if(res.status != 200) {
             error = data["error"]
         } else {

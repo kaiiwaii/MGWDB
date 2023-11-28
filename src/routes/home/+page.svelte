@@ -35,11 +35,8 @@
     }
 
     function applyGames() {
-        // Disable the "Add Game" button and show loading spinner
-        $isSavingGames = true;
 
-        // TODO: send request with games to server
-        // Simulating an asynchronous operation with a timeout
+        $isSavingGames = true;
 
         try {
             fetch(`http://127.0.0.1:4321/addgames`, {

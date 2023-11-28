@@ -12,3 +12,5 @@ export const librarySearchTerm = writable("");
 export const temporaryGames = writable([] as Game[]);
 
 export const gameList = writable([] as Game[]);
+
+export const reviewTemplate = writable("")

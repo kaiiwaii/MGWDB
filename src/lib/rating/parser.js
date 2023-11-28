@@ -14,15 +14,20 @@ class RatingSystem {
                 message: "Please create elements"
             }
         }
-        let elements = Object.keys(jsonobj.elements)
         let parsed_elements = []
-        if(elements.length == 0) {
+        if(Object.keys(jsonobj.elements).length == 0) {
             throw {
                 name: "RatingEmptyError",
                 message: "Please add some groups or categories to the system"
             }
+        
         } else {
-            for (const [group_or_cat, value] of Object.entries(jsonobj)) {
+            
+            if(jsonobj.settings) {
+                __parse_settings(jsonobj.settings)
+            }
+
+            for (const [group_or_cat, value] of Object.entries(jsonobj.elements)) {
 
                 if(typeof value === "object") {
                     if (Object.keys(value).length === 0) {
@@ -69,16 +74,6 @@ class RatingSystem {
                     let category = group_or_cat
                     parsed_elements.push(new Category(category, value))
 
-                } else if(group_or_cat.startsWith("__")) {
-                    if (typeof value === "boolean") {
-                        //TODO: define settings and check if setting exists in map
-                        parsed_elements.push(new Setting(group_or_cat.slice(2), value))
-                    } else {
-                        throw {
-                            "name": "InvalidSettingValue",
-                            "message": `Please assign a value of true or false to the setting ${group_or_cat} or remove the setting prefix (__)`
-                        }
-                    }
                 } else {
                     throw {
                         name: "InvalidTypeError",
@@ -88,6 +83,7 @@ class RatingSystem {
             }
         }
         this.elements = parsed_elements
+        console.log(parsed_elements)
     }
 
     __parse_group(name, group) {
@@ -128,6 +124,11 @@ class RatingSystem {
         }
 
     }
+
+    __parse_settings(settings) {
+
+    }
+
     check_global_weights() {
 
         let groups = [];
@@ -164,10 +165,10 @@ class RatingSystem {
                 message: `The global weight is ${global_weight}. The weight (%) of all the rating system can't be less than 100%!`
             }
         } else {
-            console.log("INFO: Global weight is correct. Checking individual groups' weights")
+            return groups
         }
         //now check local weights
-        return groups
+        
     }
 
     check_local_weights(groups) {

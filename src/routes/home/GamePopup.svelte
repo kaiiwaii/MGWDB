@@ -110,7 +110,3 @@
       </div>
     </div>
   {/if}
-  
-  <style>
-    /* Add your styling here */
-  </style>

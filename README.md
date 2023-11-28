@@ -2,25 +2,27 @@
 
 ### Work in Progress
 
-Welcome to MGWDB, your personal gaming database! This web application allows you to manage and track your favorite games, making it easy to keep an organized list of titles you want to explore or purchase.
+Welcome to MGWDB, your personal gaming database! This web application allows you to manage and track your favorite games, making it easy to keep an organized list of titles you've played.
 
 ## Features
 
 - Search/Add/Save games (based on IGDB API)
 
--
+- Custom JSON-based rating system
 
 - Open source
+
+- Not invasive
 
 
 
 Getting Started
 Clone the Repository
 
-bash
-
-git clone https://github.com/your-username/MGWDB.git
+```
+git clone https://github.com/kaiiwaii/MGWDB.git
 cd MGWDB
+```
 
 Install Dependencies
 
@@ -42,6 +44,5 @@ Technologies Used
 - Tailwind CSS: A utility-first CSS framework for rapid UI development.
 
 This project is licensed under the GPLV3 License.
-Acknowledgments
 
 **Special thanks to @DrEenot for continuously helping with the development of MGWDB.**

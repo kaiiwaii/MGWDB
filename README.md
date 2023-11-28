@@ -1,58 +1,47 @@
-# create-svelte
+# MGWDB (My Gaming World Database)
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+### Work in Progress
 
-Read more about creating a library [in the docs](https://kit.svelte.dev/docs/packaging).
+Welcome to MGWDB, your personal gaming database! This web application allows you to manage and track your favorite games, making it easy to keep an organized list of titles you want to explore or purchase.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Search/Add/Save games (based on IGDB API)
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+-
 
-# create a new project in my-app
-npm create svelte@latest my-app
+- Open source
+
+
+
+Getting Started
+Clone the Repository
+
+bash
+
+git clone https://github.com/your-username/MGWDB.git
+cd MGWDB
+
+Install Dependencies
+
+```
+npm install
 ```
 
-## Developing
+Run the Application
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
+```
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+python3 server/main.py
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+Technologies Used
 
-## Building
+- Svelte: A JavaScript framework for building user interfaces.
 
-To build your library:
+- Tailwind CSS: A utility-first CSS framework for rapid UI development.
 
-```bash
-npm run package
-```
+This project is licensed under the GPLV3 License.
+Acknowledgments
 
-To create a production version of your showcase app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```bash
-npm publish
-```
+**Special thanks to @DrEenot for continuously helping with the development of MGWDB.**

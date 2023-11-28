@@ -1,6 +1,7 @@
 <script lang="ts">
   import CodeMirror from "svelte-codemirror-editor";
-import { json } from "@codemirror/lang-json";
+  import { linter } from '@codemirror/lint'
+import { json, jsonParseLinter } from "@codemirror/lang-json";
   import { RatingSystem } from '$lib/rating/parser.js';
   import { onMount } from "svelte";
   import { reviewTemplate } from '../home/stores.js';
@@ -9,7 +10,10 @@ import { json } from "@codemirror/lang-json";
   let RSError = "";
   $: value = "";
 
+  let linterExtension;
     onMount(() => {
+
+      linterExtension = linter(jsonParseLinter())
         let rt = get(reviewTemplate)
         if(rt != "") {
             value = rt
@@ -66,6 +70,7 @@ import { json } from "@codemirror/lang-json";
       <CodeMirror
         bind:value
         lang={json()}
+        extensions={linterExtension}
         class="w-full"
       />
     </div>

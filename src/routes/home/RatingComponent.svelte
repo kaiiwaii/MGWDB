@@ -6,7 +6,6 @@
   let ratingSystem = new RatingSystem();
   let items = [];
   export let ratingScore = 0;
-  export let ratingValues = [];
 
   let example = {
     "name": "MyRatingSystem",
@@ -36,6 +35,9 @@
     ratingSystem.parse(example);
     items = ratingSystem.elements;
     console.log(items)
+    if(!ratingValues) {
+      ratingValues = [[]]
+    }
   });
 
   function getScoreValues(index, subindex) {
@@ -45,6 +47,8 @@
       return 0
     }
   }
+
+  export let ratingValues = [];
 
   function computeWeight(value, weight, index, subindex) {
 

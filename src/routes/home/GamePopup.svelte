@@ -16,7 +16,7 @@
   let review = selectedGame.review;
   let hours = selectedGame.hours;
   let played_platform = selectedGame.played_platform;
-  //TODO
+  //TODO:
   let review_values = selectedGame.review;
   let review_score = selectedGame.score;
 

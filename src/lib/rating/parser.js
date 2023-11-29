@@ -24,7 +24,7 @@ class RatingSystem {
         } else {
             
             if(jsonobj.settings) {
-                __parse_settings(jsonobj.settings)
+                this.__parse_settings(jsonobj.settings)
             }
 
             for (const [group_or_cat, value] of Object.entries(jsonobj.elements)) {
@@ -39,7 +39,6 @@ class RatingSystem {
                     if ("weight" in value) {
                         let name = group_or_cat
                         let group = value
-                        
     
                         //parse as group
                         let g;
@@ -126,7 +125,13 @@ class RatingSystem {
     }
 
     __parse_settings(settings) {
-
+        for(const [k, v] of Object.entries(settings)) {
+            //TODO: if v in available settings
+            if(typeof v === "boolean") {
+                this.elements.push(new Setting(k, v))
+            }
+            
+        }
     }
 
     check_global_weights() {

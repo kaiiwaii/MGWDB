@@ -10,7 +10,8 @@ export interface Game {
     first_release_date: number | null;
     url: string;
 
-    review: string;
+    review: [[]] | null;
+    score: number;
     description: string;
     hours: number;
     played_platform: number;

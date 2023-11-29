@@ -12,3 +12,4 @@ vite.config.ts.timestamp-*
 
 .vscode
 server/__pycache__
+package-lock.json

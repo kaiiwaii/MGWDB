@@ -1,5 +1,6 @@
 import {type Game} from "$lib/gameModel.js"
 import { goto } from "$app/navigation";
+import { ratingTemplate } from "./stores.js";
 
 
 export const ssr = false;
@@ -14,7 +15,9 @@ export const load = async ({fetch}) => {
         goto("/login")
         return
     } else {
-        let games: Game[] = await res.json()
+        let data = await res.json()
+        let games: Game[] = data["games"]
+        ratingTemplate.set(data["template"])
         return {games}
     }
     

@@ -4,8 +4,7 @@
 import { json, jsonParseLinter } from "@codemirror/lang-json";
   import { RatingSystem } from '$lib/rating/parser.js';
   import { onMount } from "svelte";
-  import { reviewTemplate } from '../home/stores.js';
-  import { get } from "svelte/store";
+  import { ratingTemplate } from '../home/stores.js';
 
   let RSError = "";
   $: value = "";
@@ -14,9 +13,8 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
     onMount(() => {
 
       linterExtension = linter(jsonParseLinter())
-        let rt = get(reviewTemplate)
         if(rt != "") {
-            value = rt
+            value = $ratingTemplate
         } else {
             value = JSON.stringify({
                 name: "MyRatingSystem",
@@ -31,12 +29,12 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
         RSError = "";
         try {
             let rs = new RatingSystem()
-            //console.log(value)
+
             rs.parse(JSON.parse(value))
-            //console.log(rs.elements);
+
             let groups = rs.check_global_weights()
             rs.check_local_weights(groups)
-            console.log(rs.elements)
+
             fetch(`http://127.0.0.1:4321/addtemplate`, {
                 method: "POST",
                 body: JSON.stringify({template: value}),

@@ -1,6 +1,5 @@
 import { writable } from "svelte/store";
 
-
 export interface Game {
     id: number;
     name: string;

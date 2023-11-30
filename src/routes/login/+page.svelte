@@ -1,6 +1,7 @@
 <script lang="ts">
     import {goto} from '$app/navigation';
-    import { reviewTemplate } from '../home/stores.js';
+    import { get } from 'svelte/store';
+    import { ratingTemplate } from '../home/stores.js';
 
     let email = "";
     let password = "";
@@ -16,7 +17,8 @@
             }
         })
         let data = await res.json()
-        reviewTemplate.set(data["template"])
+        ratingTemplate.set(data["template"])
+        console.log($ratingTemplate)
         if(res.status != 200) {
             error = data["error"]
         } else {

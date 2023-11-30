@@ -83,7 +83,7 @@
       .then(newEditor => {
         newEditor.ui.view.editable.element.style.minHeight = '10rem';
         description_editor = newEditor;
-        description_editor.setData(selectedGame.description)
+        description_editor.setData(selectedGame.description || "")
       })
       .catch( error => {
           console.error( error );

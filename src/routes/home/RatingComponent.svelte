@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import {RatingSystem, Group, Category, Setting} from '$lib/rating/parser.js'
   import Range from '$lib/Range.svelte';
+  import {ratingTemplate} from './stores.js'
 
   let ratingSystem = new RatingSystem();
+  let invalidSystem: bool = false;
   let items = [];
   export let ratingScore = 0;
 
@@ -32,11 +34,17 @@
 };
 
   onMount(() => {
-    ratingSystem.parse(example);
-    items = ratingSystem.elements;
-    console.log(items)
-    if(!ratingValues) {
-      ratingValues = [[]]
+    if($ratingTemplate == null || $ratingTemplate == "") {
+
+      invalidSystem = true;
+
+    } else {
+      ratingSystem.parse(JSON.parse($ratingTemplate));
+      items = ratingSystem.elements;
+
+      if(!ratingValues) {
+        ratingValues = [[]]
+      }
     }
   });
 
@@ -80,6 +88,7 @@
   }
 </script>
 
+{#if !invalidSystem}
 <main class="pt-6 bg-white mx-auto text-center">
   <h1 class="text-blue-600 text-2xl mb-4 mx-auto font-bold text-[3rem] pb-2">{Math.round(ratingScore)}</h1>
   {#each items as item, idx}
@@ -118,10 +127,13 @@
             <span class="text-gray-800">{item.name}</span>
           </label>
         </div>
-      {/if}
+{/if}
     </div>
   {/each}
 </main>
+{:else}
+<h1 class="text-xl mb-4 mx-auto font-bold text-[3rem] p-5">Please configure your rating system to add scores</h1>
+{/if}
 
 
 

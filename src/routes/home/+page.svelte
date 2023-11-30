@@ -40,7 +40,7 @@
         $isSavingGames = true;
 
         try {
-            fetch(`${VITE_BACKEND}/addgames`, {
+            fetch(`http://127.0.0.1:4321/addgames`, {
                 method: "POST",
                 body: JSON.stringify($temporaryGames),
                 credentials: "include",

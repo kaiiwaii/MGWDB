@@ -13,4 +13,4 @@ export const temporaryGames = writable([] as Game[]);
 
 export const gameList = writable([] as Game[]);
 
-export const reviewTemplate = writable("")
+export const ratingTemplate = writable("")

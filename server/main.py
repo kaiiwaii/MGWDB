@@ -86,7 +86,7 @@ async def login(request, query: models.LoginRequest):
     async with app.ctx.pool.acquire() as con:
         user = await con.fetchrow(
             """
-            SELECT id, email, password, review_template FROM Users
+            SELECT id, email, password FROM Users
             WHERE email = $1;
             """, query.email)
         if user:
@@ -218,7 +218,9 @@ async def get_games(request):
 
         db_data = []
         async with app.ctx.pool.acquire() as con:
-            rows = await con.fetch("SELECT id, review, description, hours, played_platform from Games where username = $1", userid)
+            t = await con.fetchrow("SELECT review_template from Users where id = $1;", userid)
+            template = t.get("review_template")
+            rows = await con.fetch("SELECT id, review, description, hours, played_platform from Games where username = $1;", userid)
             db_data = [{"id":int(row["id"]), "review":row.get('review'), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
         
 
@@ -243,8 +245,7 @@ async def get_games(request):
                     db_entry.update(api_entry)
 
 
-        print(db_data)
-        return json(db_data)
+        return json({"template": template, "games":db_data})
 
             
 

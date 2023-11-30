@@ -16,6 +16,12 @@ export interface Game {
     hours: number;
     played_platform: number;
 }
+
+export interface selectedGame {
+    game?: Game,
+    index?: number
+    saved?: boolean
+  }
 // export interface GameResult {
 //     id: number,
 //     name: string;

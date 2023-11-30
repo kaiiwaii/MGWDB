@@ -188,25 +188,26 @@ async def add_games(request):
         return json({"error": "No body"}, status=400) 
 
 
-@app.post("/deletegames")
+@app.post("/deletegame")
 async def delete_games(request):
-    body = request.json
-    if body:
+    id = request.args.get("id")
+    if id:
         try:
             userid = jwt.decode(request.cookies.get("token"), JWT_SECRET, algorithms=['HS256'])["id"]
             async with app.ctx.pool.acquire() as con:
-                await con.executemany(
+                await con.execute(
                     '''
                     DELETE FROM Games where id=$1 and username=$2
                     ''',
-                    [(row['id'], userid) for row in body]
+                    int(id), userid
                 )
                 return json({}, status=200)
-            
         except jwt.exceptions.DecodeError:
             return json({"error": "Invalid token"}, status=401)
-    else:
-        return json({"error": "No body"}, status=400) 
+    
+    return json({"error": "No id"})
+    
+    
 
 
 
@@ -227,7 +228,7 @@ async def get_games(request):
                 res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_data])});
                     '''
                 ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
-                print(res.text)
+
                 api_data = res.json()
                 
 

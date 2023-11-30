@@ -3,6 +3,7 @@
     import GameList from "./GameList.svelte";
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
+    
 
     import {
         gameList,
@@ -39,7 +40,7 @@
         $isSavingGames = true;
 
         try {
-            fetch(`http://127.0.0.1:4321/addgames`, {
+            fetch(`${VITE_BACKEND}/addgames`, {
                 method: "POST",
                 body: JSON.stringify($temporaryGames),
                 credentials: "include",

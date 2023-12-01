@@ -95,11 +95,11 @@
 {#if $showGamePopup}
   <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center">
     <div class="absolute w-full h-full bg-black opacity-50"></div>
-    <div class="relative z-10 p-4 bg-white rounded-md shadow-md w-4/5 max-h-[45rem] overflow-y-auto">
-      <button class="absolute top-2 right-2 text-gray-500" on:click={saveAndExit}>Save and Exit</button>
+    <div class="relative z-10 p-4 bg-white rounded-md shadow-md w-4/5 max-h-[90%] overflow-y-auto">
+      <button class="top-0 right-5 text-white bg-blue-500 rounded-md p-2 sticky z-10" on:click={saveAndExit}>Save and Exit</button>
       
       {#if selectedGame}
-        <img src={`//images.igdb.com/igdb/image/upload/t_screenshot_huge/${selectedGame.cover?.image_id}.jpg`} alt={selectedGame.name} class="mx-auto object-contain rounded-md" />
+        <img src={`//images.igdb.com/igdb/image/upload/t_screenshot_big/${selectedGame.cover?.image_id}.jpg`} alt={selectedGame.name} class="mx-0 w-full object-cover h-[30vh] rounded-md" />
         <h2 class="text-xl font-semibold mt-4">{selectedGame.name}</h2>
         
         <label class="text-gray-500" for="description">Description:</label>

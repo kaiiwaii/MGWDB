@@ -5,14 +5,15 @@
     import fuzzy from 'fuzzy';
     import {librarySearchTerm, gameList, temporaryGames, showGamePopup} from './stores.js'
     import ContextMenu, { Item, Divider, Settings } from "svelte-contextmenu";
+    import Range from '$lib/Range.svelte';
     import DeleteDialog from './DeleteDialog.svelte';
 
     let ctxMenu: ContextMenu;
     let showDeleteDialog = false;
+    let gameCardScale = 100;
 
-    // onMount(() => {
-      
-    // })
+    let showViewingOptionsDropdown = false;
+
     let selected_game= {} as selectedGame;
 
     function show_game_popup(game: Game) {
@@ -30,6 +31,11 @@
 {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
 <DeleteDialog bind:showDeleteDialog {selected_game}/>
+<Range
+  min={30}
+  max={100}
+  bind:value={gameCardScale}
+/>
 
 <ContextMenu bind:this={ctxMenu}>
   <Item on:click={() => {showDeleteDialog = true; console.log(showDeleteDialog)}}>Remove game</Item>
@@ -45,9 +51,10 @@
       selected_game.index = idx
       selected_game.saved = true;
       ctxMenu.show(e)
-    }} on:click={() => show_game_popup(game)}>
+      }} on:click={() => show_game_popup(game)}>
       <ContextMenu />
-      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover h-[187px] rounded-md shadow-md" />
+      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class={`object-cover rounded-md shadow-md`} style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
+      <h1 style="font-size:{Math.trunc(25 * (gameCardScale/100))}px; max-width:{Math.trunc(264 * (gameCardScale/100))}px"><b>{game.name}</b></h1>
     </div>
   {/each}
 
@@ -59,7 +66,7 @@
       ctxMenu.show(e)
     }} on:click={() => show_game_popup(game)}>
       <ContextMenu />
-        <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover h-[187px] rounded-md shadow-md" />
+        <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class={`object-cover rounded-md shadow-md`} style="height:{Math.trunc(374 * (gameCardScale/100))}px"/>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="bg-red-500 p-1 rounded-full absolute top-2 left-2 cursor-pointer">
                 <span class="text-white rounded-full p-1" style="background-color: inherit;">ⓘ</span>

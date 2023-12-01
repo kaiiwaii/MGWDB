@@ -10,7 +10,7 @@
 
     let ctxMenu: ContextMenu;
     let showDeleteDialog = false;
-    let gameCardScale = 100;
+    let gameCardScale = 50;
 
     let showViewingOptionsDropdown = false;
 
@@ -21,14 +21,22 @@
         $showGamePopup = true;
     }
 
-    $: filteredGameList = fuzzy.filter($librarySearchTerm, $gameList, {extract: function(g) {return g.name}}).map(el => el.original)
+
+    $: filteredGameList = fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name || ""}).map(el => el.original)
 
     $: filteredTemporaryGames = fuzzy.filter($librarySearchTerm, $temporaryGames, {extract: function(g) {return g.name}}).map(el => el.original)
 
   </script>
 
+<style>
+  :root {
+  --ctx-menu-font-size: 1rem;
+}
+</style>
 
-{#if $gameList.length > 0 || $temporaryGames.length > 0}
+
+<div>
+  {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
 <DeleteDialog bind:showDeleteDialog {selected_game}/>
 <Range
@@ -53,7 +61,7 @@
       ctxMenu.show(e)
       }} on:click={() => show_game_popup(game)}>
       <ContextMenu />
-      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class={`object-cover rounded-md shadow-md`} style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
+      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-md z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
       <h1 style="font-size:{Math.trunc(25 * (gameCardScale/100))}px; max-width:{Math.trunc(264 * (gameCardScale/100))}px"><b>{game.name}</b></h1>
     </div>
   {/each}
@@ -66,7 +74,7 @@
       ctxMenu.show(e)
     }} on:click={() => show_game_popup(game)}>
       <ContextMenu />
-        <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class={`object-cover rounded-md shadow-md`} style="height:{Math.trunc(374 * (gameCardScale/100))}px"/>
+        <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-md z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px"/>
         <div class="absolute inset-0 flex items-center justify-center">
             <div class="bg-red-500 p-1 rounded-full absolute top-2 left-2 cursor-pointer">
                 <span class="text-white rounded-full p-1" style="background-color: inherit;">ⓘ</span>
@@ -79,6 +87,7 @@
     {/if}
   </div>
 {/if}
+</div>
 
   
     

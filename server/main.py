@@ -31,6 +31,9 @@ def write_token(data: dict):
         return token_bytes.decode("utf-8")
     except:
         return token_bytes
+    
+def chunker(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 @app.middleware('response')
 async def add_cors_headers(request, response):
@@ -123,7 +126,7 @@ async def search_games_from_api(request):
     if search:
         async with httpx.AsyncClient() as c:
             res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
-                             f name, genres.name, cover.image_id, first_release_date, platforms.id, platforms.abbreviation, url;
+                             f name, genres.name, cover.image_id, first_release_date, platforms.id, platforms.abbreviation, url; limit 20;
                              '''
                             , headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
             return json(res.json())
@@ -227,11 +230,12 @@ async def get_games(request):
         if len(db_data) > 0:
             api_data = []
             async with httpx.AsyncClient() as c:
-                res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in db_data])});
+                for game_group in chunker(db_data, 10):
+                    res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in game_group])});
                     '''
-                ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
+                    ,headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
 
-                api_data = res.json()
+                    api_data += res.json()
                 
 
                 api_data_mapped = {el['id']: el for el in api_data}

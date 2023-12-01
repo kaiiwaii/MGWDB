@@ -12,9 +12,13 @@
         librarySearchTerm,
         showSearchPopup,
         temporaryGames,
+        pageLoaded,
+        ratingTemplate
     } from "./stores.js";
 
-    export let data;
+    export let games;
+
+    let isEverythingLoaded = false;
 
     const toggleSearchPopup = () => {
         $showSearchPopup = !$showSearchPopup;
@@ -24,9 +28,27 @@
         showProfileDropdown = !showProfileDropdown;
     };
 
-    onMount(() => {
-        $gameList = data.games && data.games.length > 0 ? data.games : [];
-    });
+    let loaded;
+
+    async function loadAll() {
+        let res = await fetch(`http://127.0.0.1:4321/mygames`, {
+        credentials: "include",
+        method: "GET"
+    })
+        if(res.status == 401) {
+        goto("/login")
+        return
+        } else {
+            let data = await res.json()
+            games = data["games"]
+            console.log(games)
+            ratingTemplate.set(data["template"])
+    }
+        $gameList = games && games.length > 0 ? games : [];
+        isEverythingLoaded = true;
+    }
+
+    onMount(() => loaded = loadAll());
 
     function logOut() {
         document.cookie =
@@ -64,6 +86,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MGWDB</title>
     </head>
+    {#await loaded}
+    <h1>Loading...</h1>
+    {:then}
     <body class="bg-white">
         <nav class="bg-blue-500 p-4">
             <div
@@ -118,7 +143,7 @@
 
                 <!-- Foto de perfil con dropdown -->
                 <button
-                    class="relative"
+                    class="relative z-50 border-0"
                     on:click={toggleProfileDropdown}
                     on:click={toggleProfileDropdown}
                 >
@@ -128,18 +153,18 @@
                         class="h-8 w-8 rounded-full cursor-pointer"
                     />
                     <div
-                        class={`absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg', ${
+                        class={`absolute right-0 w-48 bg-white border rounded-md shadow-lg', ${
                             showProfileDropdown ? "block" : "hidden"
                         }`}
                     >
                         <button
                             on:click={() => goto("/template")}
-                            class="block px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white"
+                            class="block border-0 mx-auto py-2 w-full text-gray-800 hover:bg-blue-600 hover:text-white"
                             >Edit review template</button
                         >
                         <button
                             on:click={logOut}
-                            class="block px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white"
+                            class="block mx-auto w-full py-2 text-gray-800 hover:bg-blue-600 hover:text-white"
                             >Log out</button
                         >
                     </div>
@@ -149,6 +174,9 @@
         <Popup />
         <GameList />
     </body>
+    {:catch error}
+    alert(error)
+    {/await}
 </html>
 
 <style>

@@ -13,14 +13,14 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
     onMount(() => {
 
       linterExtension = linter(jsonParseLinter())
-        if(rt != "") {
+        if($ratingTemplate != "") {
             value = $ratingTemplate
         } else {
             value = JSON.stringify({
                 name: "MyRatingSystem",
                 elements: {
                 }
-            }, null, "\t") + "\n".repeat(12)
+            }, null, "\t") + "\n".repeat(1)
         }
         
     })

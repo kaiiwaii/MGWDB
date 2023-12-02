@@ -10,49 +10,25 @@
 
   export let ratingScore = 0;
 
-  let example = {
-    "name": "MyRatingSystem",
-    "elements": {
-        "Art": {
-            "weight": 40,
-            "categories": {
-                "Graphics": 40,
-                "Animations": 40,
-                "Other": 20
-            }
-        },
-        
-        "Characters": 20,
-
-        "Music": {
-            "weight": 40,
-            "categories": {
-                "Soundtrack": 80,
-                "Effects": 20
-            }
-        }
-    }
-};
-
   onMount(() => {
     if($ratingTemplate == null || Object.keys($ratingTemplate).length == 0) {
 
       invalidSystem = true;
-
+      return
     } else {
       ratingSystem.parse(JSON.parse($ratingTemplate));
       items = ratingSystem.elements;
       console.log(ratingValues);
       if(ratingValues) {
         ratingValues = JSON.parse(ratingValues);
-      if(Object.keys(ratingValues).length == 0) {
-        ratingValues = {}
-      } else {
-        // ratingValues = ratingValues ? JSON.parse(ratingValues) : {[[]]}
-        // console.log(ratingValues)
-        //fix this
-        getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
-      } 
+        if(Object.keys(ratingValues).length == 0) {
+          ratingValues = {}
+        } else {
+          // ratingValues = ratingValues ? JSON.parse(ratingValues) : {[[]]}
+          // console.log(ratingValues)
+          //fix this
+          getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
+        } 
       } else {
         ratingValues = {};
       }

@@ -9,7 +9,7 @@
 
   
     async function handleLogin() {
-        let res = await fetch(`http://127.0.0.1:4321/login?email=${email}&password=${password}`, {
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/login?email=${email}&password=${password}`, {
             method: "GET",
             credentials: "include",
             headers: {

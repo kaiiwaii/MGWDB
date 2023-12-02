@@ -2,7 +2,6 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
     // Import other dependencies as needed
-
     // Add your existing imports here
     let email = ""
     let username = ""
@@ -13,7 +12,7 @@
     // Add any additional functions or variables for signup functionality
 
     async function signUp() {
-        let res = await fetch(`http://127.0.0.1/signup?username=${username}&password=${password}&email=${email}&code=${code}`)
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/signup?username=${username}&password=${password}&email=${email}&code=${code}`, {method: "POST"})
         if(res.status != 200) {
             alert("Error signing up")
         } else {

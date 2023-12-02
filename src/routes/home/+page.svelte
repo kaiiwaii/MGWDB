@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
 
+    const VITE_API_URL= import.meta.env.VITE_API_URL
     import {
         gameList,
         gamesNotSaved,
@@ -28,7 +29,7 @@
     let loaded;
 
     async function loadAll() {
-        let res = await fetch(`http://127.0.0.1:4321/mygames`, {
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/mygames`, {
         credentials: "include",
         method: "GET"
     })
@@ -49,7 +50,7 @@
     function logOut() {
         document.cookie =
             "token" +
-            "=; Path=/; Domain=127.0.0.1 ; SameSite=None; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+            "=; Path=/; Domain=mghdb.com ; SameSite=None; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
         goto("/login");
     }
 
@@ -58,7 +59,7 @@
         $isSavingGames = true;
 
         try {
-            fetch(`http://127.0.0.1:4321/addgames`, {
+            fetch(`${VITE_API_URL}/addgames`, {
                 method: "POST",
                 body: JSON.stringify($temporaryGames),
                 credentials: "include",
@@ -169,7 +170,7 @@
         <GameList />
     </body>
     {:catch error}
-    alert(error)
+    {error}
     {/await}
 </html>
 

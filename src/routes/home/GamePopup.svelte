@@ -13,7 +13,6 @@
 
   //There's no need to have this many variables, but it's to avoid updating selectedGame (it's bound somehow?)
   let description = selectedGame.description;
-  let rating = selectedGame.rating;
   let hours = selectedGame.hours;
   let played_platform = selectedGame.played_platform;
 
@@ -25,6 +24,8 @@
     description = description_editor.getData();
     modifyGame();
     $showGamePopup = false;
+    console.log(rating_values)
+    console.log(selectedGame.rating)
   };
   let description_editor;
 
@@ -34,13 +35,14 @@
       let idx = $gameList.findIndex(g => g.id == selectedGame.id);
 
       if(idx != -1) {
-        let srating = JSON.stringify(rating_values, function replacer(key, value) {
+        let srating = rating_values ? JSON.stringify(rating_values, function replacer(key, value) {
           if (Array.isArray(value) && value.length === 0) {
             return { ...value }; // Converts empty array with string properties into a POJO
           }
           return value;
-        });
+        }): "";
         console.log(srating)
+        console.log(selectedGame.rating)
         if(selectedGame.description != description || 
           selectedGame.rating != srating ||
           selectedGame.hours != hours ||
@@ -65,12 +67,13 @@
         let idx = $temporaryGames.findIndex(g => g.id == selectedGame.id);
         
         if(idx != -1) {
-          let srating = JSON.stringify(rating_values, function replacer(key, value) {
+          let srating = rating_values ?JSON.stringify(rating_values, function replacer(key, value) {
           if (Array.isArray(value) && value.length === 0) {
             return { ...value }; // Converts empty array with string properties into a POJO
           }
           return value;
-        });
+        }) : "";
+        console.log(srating)
           if(selectedGame.description != description || 
             selectedGame.rating != srating ||
             selectedGame.hours != hours ||

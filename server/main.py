@@ -28,11 +28,6 @@ SALT = env['SALT'].encode()
 DB_URL = env["DB_URL"]
 CODE_SECRET = env['CODE_SECRET']
 
-
-class User(BaseModel):
-    username: str
-
-
 def write_token(data: dict):
     token_bytes = jwt.encode(data, JWT_SECRET, algorithm='HS256')
     try:
@@ -273,7 +268,7 @@ async def get_profile(request, username):
                             continue
                         db_entry.update(api_entry)
 
-            return json({"template": template, "games": db_data})    
+            return json({"games": db_data})    
 
 
 @app.get("/mygames")

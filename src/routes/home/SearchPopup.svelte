@@ -7,7 +7,7 @@
     let searchTerm = '';
 
     let games_to_add_length = 0;
-
+    const VITE_API_URL = import.meta.env.VITE_API_URL;
 
     let searchResults: Game[] = [];
     let isSearching = false;
@@ -35,7 +35,7 @@
 
             if(!isSearching) {
                 isSearching = true;
-                const response = await fetch(`http://127.0.0.1:4321/api/searchgames?search=${searchTerm}`, {
+                const response = await fetch(`${VITE_API_URL}/api/searchgames?search=${searchTerm}`, {
                 method: 'GET',
                 credentials: "include"
                 });

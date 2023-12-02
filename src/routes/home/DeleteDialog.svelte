@@ -21,6 +21,7 @@
     function closeDialog() {
         deleteDialogContainer.close()
         showDeleteDialog = false;
+        isDeleting = false;
     }
 
     async function removeGame() {

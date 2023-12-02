@@ -1,23 +1,23 @@
 {
-    "name": "MyRatingSystem",
-    "elements": {
-        "Art": {
-            "weight": 40,
-            "categories": {
-                "graphics": 40,
-                "animations": 40,
-                "other": 20
-            }
-        },
-        
-        "Characters": 20,
+  "name": "MyRatingSystem",
+  "elements": {
+    "Art": {
+      "weight": 40,
+      "categories": {
+        "graphics": 40,
+        "animations": 40,
+        "other": 20
+      }
+    },
 
-        "Music": {
-            "weight": 40,
-            "categories": {
-                "soundtrack": 80,
-                "effects": 20
-            }
-        }
+    "Characters": 20,
+
+    "Music": {
+      "weight": 40,
+      "categories": {
+        "soundtrack": 80,
+        "effects": 20
+      }
     }
+  }
 }

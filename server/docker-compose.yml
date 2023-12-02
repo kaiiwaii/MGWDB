@@ -11,7 +11,7 @@ services:
       - APP_DB_PASS=mgwdb
       - APP_DB_NAME=mgwdb
     ports:
-      - '5433:5432'
+      - "5433:5432"
     networks:
       - mgwdbnet
     volumes:

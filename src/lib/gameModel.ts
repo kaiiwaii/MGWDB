@@ -1,26 +1,26 @@
 import { writable } from "svelte/store";
 
 export interface Game {
-    id: number;
-    name: string;
-    cover: { image_id: string } | null;
-    platforms: {id: number, abbreviation: string}[] | null;
-    genres: {name: string}[] | null;
-    first_release_date: number | null;
-    url: string;
+  id: number;
+  name: string;
+  cover: { image_id: string } | null;
+  platforms: { id: number; abbreviation: string }[] | null;
+  genres: { name: string }[] | null;
+  first_release_date: number | null;
+  url: string;
 
-    rating: string | null;
-    score: number;
-    description: string;
-    hours: number;
-    played_platform: number;
+  rating: string | null;
+  score: number;
+  description: string;
+  hours: number;
+  played_platform: number;
 }
 
 export interface selectedGame {
-    game?: Game,
-    index?: number
-    saved?: boolean
-  }
+  game?: Game;
+  index?: number;
+  saved?: boolean;
+}
 // export interface GameResult {
 //     id: number,
 //     name: string;

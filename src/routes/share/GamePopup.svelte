@@ -59,9 +59,9 @@
         
         <RatingComponent bind:ratingValues={rating_values} bind:ratingScore={rating_score}/>
 
-        <div class="text-gray-500 mt-2" for="hours">Hours Played: {hours}</div>
+        <div class="text-gray-500 mt-2">Hours Played: {hours}</div>
 
-        <div class="text-gray-500 mt-2" for="played_platform">Played Platform: {played_platform}</div>
+        <div class="text-gray-500 mt-2">Played Platform: {played_platform}</div>
         
         <p class="text-gray-500 mt-2">Release Date: {formatReleaseDate(selectedGame.first_release_date)}</p>
         <p class="text-gray-500">URL: {selectedGame.url}</p>

@@ -13,6 +13,6 @@ export const temporaryGames = writable([] as Game[]);
 
 export const gameList = writable([] as Game[]);
 
-export const ratingTemplate = writable("")
+export const ratingTemplate = writable("");
 
 export const pageLoaded = writable(false);

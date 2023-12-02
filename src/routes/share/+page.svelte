@@ -68,7 +68,7 @@
                 <div class="flex-grow w-full md:w-1/2 md:mr-4 mb-4 md:mb-0">
                     <input
                         type="search"
-                        placeholder="Buscar..."
+                        placeholder="Search..."
                         bind:value={$librarySearchTerm}
                         class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700"
                     />

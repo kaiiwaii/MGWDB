@@ -67,7 +67,7 @@
   {/each}
 
   {#each filteredTemporaryGames as game, idx}
-    <div class="m-4 cursor-pointer relative hover:scale-[115]" on:contextmenu={(e)=> {
+    <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
       selected_game.game = game;
       selected_game.index = idx
       selected_game.saved = false;

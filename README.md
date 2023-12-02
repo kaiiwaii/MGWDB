@@ -14,8 +14,6 @@ Welcome to MGWDB, your personal gaming database! This web application allows you
 
 - Not invasive
 
-
-
 Getting Started
 Clone the Repository
 

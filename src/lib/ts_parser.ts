@@ -107,7 +107,9 @@ class RatingSystem {
 
       return new Group(name, group_weight, categories);
     } else {
-      console.log(`[WARNING]: Categories not found in group ${name}, the parser will treat it as a single category`);
+      console.log(
+        `[WARNING]: Categories not found in group ${name}, the parser will treat it as a single category`,
+      );
       throw {
         name: "ParseAsCategory",
       };
@@ -150,7 +152,9 @@ class RatingSystem {
         message: `The global weight is ${global_weight}. The weight (%) of all the rating system can't be less than 100%!`,
       };
     } else {
-      console.log("INFO: Global weight is correct. Checking individual groups' weights");
+      console.log(
+        "INFO: Global weight is correct. Checking individual groups' weights",
+      );
     }
 
     for (let group of groups) {

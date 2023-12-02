@@ -13,6 +13,7 @@ class SignupRequest:
     email: str
     username: str
     password: str
+    code: str
 
 
 @dataclass

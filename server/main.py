@@ -26,6 +26,11 @@ IGDB_ID = env['IGDB_ID']
 IGDB_SECRET = env['IGDB_SECRET']
 SALT = env['SALT'].encode()
 DB_URL = env["DB_URL"]
+CODE_SECRET = env['CODE_SECRET']
+
+
+class User(BaseModel):
+    username: str
 
 
 def write_token(data: dict):
@@ -123,7 +128,10 @@ async def login(request, query: models.LoginRequest):
 @validate(query=models.SignupRequest)
 async def signup(request, query: models.SignupRequest):
     password = bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8")
-
+    try:
+        jwt.decode(query.code, CODE_SECRET, algorithms=['HS256'])["id"]
+    except:
+        return json({"error": "Invalid code"}, status=401)
     async with app.ctx.pool.acquire() as con:
         await con.execute('''
         INSERT INTO Users(username, password, email) values ($1, $2, $3);

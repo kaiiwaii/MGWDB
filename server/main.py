@@ -1,7 +1,6 @@
 from sanic import Sanic
 from sanic.response import json
 from sanic_ext import validate, Extend
-from sanic_cors import CORS
 import asyncio
 import asyncpg
 import httpx
@@ -108,7 +107,7 @@ async def login(request, query: models.LoginRequest):
             """, query.email)
         if user:
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
-                r = json({"template": user["review_template"]})
+                r = json({"template": user.get("review_template")})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
                 r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now(
                 ) + datetime.timedelta(days=7), path="/")
@@ -124,7 +123,7 @@ async def login(request, query: models.LoginRequest):
 async def signup(request, query: models.SignupRequest):
     password = bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8")
     try:
-        jwt.decode(query.code, CODE_SECRET, algorithms=['HS256'])["id"]
+        jwt.decode(query.code, CODE_SECRET, algorithms=['HS256'])
     except:
         return json({"error": "Invalid code"}, status=401)
     async with app.ctx.pool.acquire() as con:
@@ -311,4 +310,4 @@ async def get_games(request):
         return json({"error": "Invalid token"}, status=401)
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=4321, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

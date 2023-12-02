@@ -168,7 +168,7 @@
             <span class="text-gray-800">{item.name}</span>
           </label>
         </div>
-{/if}
+      {/if}
     </div>
   {/each}
 </main>

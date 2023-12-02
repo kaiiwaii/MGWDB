@@ -70,7 +70,7 @@ async def setup_db(app):
             inner_id BIGSERIAL PRIMARY KEY,
             id INTEGER,
             username BIGINT NOT NULL REFERENCES Users(id),
-            review VARCHAR(4096) DEFAULT '',
+            rating VARCHAR(4096) DEFAULT '',
             description VARCHAR(4096) DEFAULT '',
             hours DOUBLE PRECISION DEFAULT 0,
             played_platform INTEGER DEFAULT -1
@@ -80,6 +80,13 @@ async def setup_db(app):
                 ON Games(id, username);
                           
         """)
+        
+        # CREATE TABLE IF NOT EXISTS Cache (
+        #     id INTEGER PRIMARY KEY,
+        #     name TEXT,
+        #     genres 
+        #     f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url;
+        # )
 
 
 @app.get("/login")
@@ -178,10 +185,10 @@ async def add_games(request):
             async with app.ctx.pool.acquire() as con:
                 await con.executemany(
                     '''
-                    INSERT INTO Games (id, username, review, description, hours, played_platform)
-                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id, username) DO UPDATE SET review=$3, description=$4, hours=$5, played_platform=$6
+                    INSERT INTO Games (id, username, rating, description, hours, played_platform)
+                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id, username) DO UPDATE SET rating=$3, description=$4, hours=$5, played_platform=$6
                     ''',
-                    [(row['id'], userid, row.get('review', ""), row.get('description', ""), row.get('hours', 0), int(row.get('played_platform', -1))) for row in body]
+                    [(row['id'], userid, row.get('rating', ""), row.get('description', ""), row.get('hours', 0), int(row.get('played_platform', -1))) for row in body]
                 )
                 return json({}, status=200)
             
@@ -223,13 +230,14 @@ async def get_games(request):
         async with app.ctx.pool.acquire() as con:
             t = await con.fetchrow("SELECT review_template from Users where id = $1;", userid)
             template = t.get("review_template")
-            rows = await con.fetch("SELECT id, review, description, hours, played_platform from Games where username = $1;", userid)
-            db_data = [{"id":int(row["id"]), "review":row.get('review'), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
+            rows = await con.fetch("SELECT id, rating, description, hours, played_platform from Games where username = $1;", userid)
+            db_data = [{"id":int(row["id"]), "rating": str(row.get('rating')), "description":row.get('description'),"hours":row.get('hours'), "played_platform":row.get('played_platform')} for row in rows]
         
 
         if len(db_data) > 0:
             api_data = []
             async with httpx.AsyncClient() as c:
+
                 for game_group in chunker(db_data, 10):
                     res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url; where id = ({",".join([str(g["id"]) for g in game_group])});
                     '''
@@ -237,7 +245,6 @@ async def get_games(request):
 
                     api_data += res.json()
                 
-
                 api_data_mapped = {el['id']: el for el in api_data}
 
                 for db_entry in db_data:

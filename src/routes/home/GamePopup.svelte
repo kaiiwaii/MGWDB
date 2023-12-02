@@ -13,29 +13,36 @@
 
   //There's no need to have this many variables, but it's to avoid updating selectedGame (it's bound somehow?)
   let description = selectedGame.description;
-  let review = selectedGame.review;
+  let rating = selectedGame.rating;
   let hours = selectedGame.hours;
   let played_platform = selectedGame.played_platform;
-  //TODO:
-  let review_values = selectedGame.review;
-  let review_score = selectedGame.score;
+
+  let rating_values = selectedGame.rating;
+  let rating_score = selectedGame.score;
 
   const saveAndExit = () => {
     // Call the save function
-    console.log(played_platform)
     description = description_editor.getData();
-    console.log(description)
     modifyGame();
     $showGamePopup = false;
   };
   let description_editor;
 
   function modifyGame() {
+    console.log(rating_values)
 
       let idx = $gameList.findIndex(g => g.id == selectedGame.id);
+
       if(idx != -1) {
+        let srating = JSON.stringify(rating_values, function replacer(key, value) {
+          if (Array.isArray(value) && value.length === 0) {
+            return { ...value }; // Converts empty array with string properties into a POJO
+          }
+          return value;
+        });
+        console.log(srating)
         if(selectedGame.description != description || 
-          selectedGame.review != review ||
+          selectedGame.rating != srating ||
           selectedGame.hours != hours ||
           selectedGame.played_platform != played_platform) {
             
@@ -43,7 +50,7 @@
             //hell itself
             let edited_game = selectedGame;
               edited_game.description = description
-              edited_game.review = review
+              edited_game.rating = srating
               edited_game.hours = hours
               edited_game.played_platform = played_platform
 
@@ -51,20 +58,27 @@
             $gameList = $gameList;
             $temporaryGames = $temporaryGames;
             $gamesNotSaved = true
+            console.log($gameList)
           }
 
       } else {
         let idx = $temporaryGames.findIndex(g => g.id == selectedGame.id);
         
         if(idx != -1) {
+          let srating = JSON.stringify(rating_values, function replacer(key, value) {
+          if (Array.isArray(value) && value.length === 0) {
+            return { ...value }; // Converts empty array with string properties into a POJO
+          }
+          return value;
+        });
           if(selectedGame.description != description || 
-            selectedGame.review != review ||
+            selectedGame.rating != srating ||
             selectedGame.hours != hours ||
             selectedGame.played_platform != played_platform) {
               //Hades himself fears this
               let edited_game = selectedGame;
               edited_game.description = description
-              edited_game.review = review
+              edited_game.rating = srating
               edited_game.hours = hours
               edited_game.played_platform = played_platform
 
@@ -105,7 +119,7 @@
         <label class="text-gray-500" for="description">Description:</label>
         <div id="description_editor" class="mt-2 max-h-[30%]"></div>
         
-        <RatingComponent bind:ratingValues={review_values} bind:ratingScore={review_score}/>
+        <RatingComponent bind:ratingValues={rating_values} bind:ratingScore={rating_score}/>
 
         <label class="text-gray-500 mt-2" for="hours">Hours Played:</label>
         <input type="number" id="hours" class="w-full rounded-md p-2" bind:value={hours} />

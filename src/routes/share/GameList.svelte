@@ -6,7 +6,7 @@
     import {librarySearchTerm, gameList, temporaryGames, showGamePopup} from './stores.js'
     import ContextMenu, { Item, Divider, Settings } from "svelte-contextmenu";
     import Range from '$lib/Range.svelte';
-    import DeleteDialog from './DeleteDialog.svelte';
+
 
     let ctxMenu: ContextMenu;
     let showDeleteDialog = false;
@@ -38,29 +38,15 @@
 <div>
   {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
-<DeleteDialog bind:showDeleteDialog {selected_game}/>
-<Range
+<Range style="pointer-events: none;"
   min={30}
   max={100}
   bind:value={gameCardScale}
 />
 
-<ContextMenu bind:this={ctxMenu}>
-  <Item on:click={() => {showDeleteDialog = true; console.log(showDeleteDialog)}}>Remove game</Item>
-  <!-- <Divider /> -->
-</ContextMenu>
-
 <div class="mt-4 flex flex-wrap justify-center z-0 bg-white">
   {#each filteredGameList as game, idx}
-    <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
-      //OnMount sometimes doesn't work
-
-      selected_game.game = game;
-      selected_game.index = idx
-      selected_game.saved = true;
-      ctxMenu.show(e)
-      }} on:click={() => show_game_popup(game)}>
-      <ContextMenu />
+    <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:click={() => show_game_popup(game)}>
       <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-md z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
       <h1 style="font-size:{Math.trunc(25 * (gameCardScale/100))}px; max-width:{Math.trunc(264 * (gameCardScale/100))}px"><b>{game.name}</b></h1>
     </div>

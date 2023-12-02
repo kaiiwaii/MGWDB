@@ -2,15 +2,18 @@
     "name": "MyRatingSystem",
     "elements": {
         "Art": {
-            "weight": 30,
+            "weight": 40,
             "categories": {
                 "graphics": 40,
                 "animations": 40,
                 "other": 20
             }
         },
+        
+        "Characters": 20,
+
         "Music": {
-            "weight": 20,
+            "weight": 40,
             "categories": {
                 "soundtrack": 80,
                 "effects": 20

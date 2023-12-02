@@ -138,25 +138,27 @@
         {#each item.categories as subitem}
           <div class="flex items-center mb-4 w-full">
             <h1 class="text-gray-800 text-md mr-2">{subitem.name} ({subitem.weight}%)</h1>
-            <div class="flex items-center w-[100%] lg:w-[60%]">
+            <div style="pointer-events: none;" class="flex items-center w-[100%] lg:w-[60%]">
               <Range
                 min={0}
                 max={100}
                 value={getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100))}
                 on:change={(v) => computeWeight(v.detail.value, (item.weight / 100) * (subitem.weight / 100), item.name, subitem.name)}
               />
+              {Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}
             </div>
           </div>
         {/each}
       {:else if isCategory(item)}
         <div class="flex items-center mb-4">
-          <div class="flex items-center w-[100%] lg:w-[40%]">
+          <div style="pointer-events:none;" class="flex items-center w-[100%] lg:w-[40%]">
             <Range
               min={0}
               max={100}
               value={getScoreValues(item.name, null) / (item.weight/100)}
               on:change={(v) => computeWeight(v.detail.value, item.weight / 100, item.name, 0)}
             />
+            {Math.round(getScoreValues(item.name, null) / (item.weight/100))}
           </div>
         </div>
       {:else if isSetting(item)}

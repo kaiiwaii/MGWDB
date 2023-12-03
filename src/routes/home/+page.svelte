@@ -140,7 +140,7 @@
 
                 <!-- Foto de perfil con dropdown -->
                 <button
-                    class="relative z-50 border-0"
+                    class="relative z-20 border-0"
                     on:click={toggleProfileDropdown}
                 >
                 <img src="/user-solid.svg"

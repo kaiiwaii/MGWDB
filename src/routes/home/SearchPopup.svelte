@@ -56,7 +56,7 @@
 </script>
 
 {#if $showSearchPopup}
-  <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-10">
+  <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
     <div class="bg-white p-4 rounded shadow-lg md:w-1/2">
       <!-- Search bar at the top center -->
       <div class="flex mb-4">

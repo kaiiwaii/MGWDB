@@ -146,7 +146,7 @@ async def search_games_from_api(request):
     if search:
         async with httpx.AsyncClient() as c:
             res = await c.request("POST", url="https://api.igdb.com/v4/games", content=f'''search "{search}";
-                             f name, genres.name, cover.image_id, first_release_date, platforms.id, platforms.abbreviation, url; limit 20;
+                             f name, genres.name, cover.image_id, first_release_date, platforms.id, platforms.abbreviation, url; limit 15;
                              ''', headers={"Client-ID": IGDB_ID, "Authorization": f"Bearer {app.ctx.igdb_token}"})
             return json(res.json())
     else:

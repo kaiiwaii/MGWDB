@@ -12,13 +12,22 @@
   
   export let selectedGame: Game;
 
-  let selectedCopy = {... selectedGame};
+  let selectedCopy = Object.assign({}, selectedGame)
+
+  //Why is this still needed
+  let date_from = selectedCopy.date_range.from;
+  let date_to = selectedCopy.date_range.to;
 
   const saveAndExit = () => {
-    // Call the save function
+
     selectedCopy.description = description_editor.getData();
+    selectedCopy.date_range = {from: date_from, to: date_to}
+    console.log(selectedCopy.date_range)
+    console.log(selectedGame.date_range)
+
     modifyGame();
     $showGamePopup = false;
+
 
   };
   let description_editor;
@@ -35,8 +44,6 @@
           return value;
         }): "";
 
-        console.log(JSON.stringify(selectedGame))
-        console.log(JSON.stringify(selectedCopy))
         if(JSON.stringify(selectedCopy) != JSON.stringify(selectedGame)) {
 
             $gameList.splice(idx, 1)
@@ -57,7 +64,7 @@
           }
           return value;
         }) : "";
-        console.log(srating)
+
           if(JSON.stringify(selectedCopy) != JSON.stringify(selectedGame)) {
 
               $temporaryGames[idx] = selectedCopy;
@@ -85,7 +92,7 @@
 </script>
 
 {#if $showGamePopup}
-  <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center">
+  <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center z-20">
     <div class="absolute w-full h-full bg-black opacity-50"></div>
     <div class="relative z-10 p-4 bg-white rounded-md shadow-md w-4/5 max-h-[90%] overflow-y-auto">
       <button class="top-0 right-5 text-white bg-blue-500 rounded-md p-2 sticky z-10" on:click={saveAndExit}>Save and Exit</button>
@@ -101,17 +108,23 @@
 
         <label class="text-gray-500 mt-2" for="hours">Hours Played:</label>
         <input type="number" id="hours" class="w-full rounded-md p-2" bind:value={selectedCopy.hours} />
-        <DateInput format="dd-MM-yyyy" bind:value={selectedCopy.date_range.from} />
-        <DateInput format="dd-MM-yyyy" bind:value={selectedCopy.date_range.to} />
+
+        <div class="flex flex-wrap items-center mt-2 pb-1">
+          <label class="text-gray-500" for="date_from">Start Date:</label>
+          <DateInput format="dd-MM-yyyy" bind:value={date_from} class="ml-2" />
         
+          <label class="text-gray-500 ml-2" for="date_to">End Date:</label>
+          <DateInput format="dd-MM-yyyy" bind:value={date_to} class="ml-2" />
+        </div>
+      
 
         <label class="text-gray-500 mt-2" for="played_platform">Played Platform:</label>
         <select id="played_platform" class="w-full rounded-md p-2" bind:value={selectedCopy.played_platform}>
           {#each selectedGame.platforms?.map(p => p) as platform}
-			    <option value={platform.id}>
-				    {platform.abbreviation}
-			    </option>
-		{/each}        
+			      <option value={platform.id}>
+				      {platform.abbreviation}
+			      </option>
+		      {/each}        
         </select>
         
         <p class="text-gray-500 mt-2">Release Date: {formatReleaseDate(selectedGame.first_release_date)}</p>

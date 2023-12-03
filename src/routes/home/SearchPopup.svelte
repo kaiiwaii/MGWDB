@@ -41,6 +41,7 @@
                 });
 
                 const data = await response.json();
+                searchResults = [];
                 for(let game of data) {
                   searchResults.push(new Game(game));
                 }

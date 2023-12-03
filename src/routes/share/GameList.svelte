@@ -49,6 +49,8 @@
       <GamePopup selectedGame={selected_game.game}/>
     {/if}
   </div>
+{:else}
+<h1>This user doesn't have any games</h1>
 {/if}
 </div>
 

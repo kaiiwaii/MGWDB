@@ -247,11 +247,13 @@ async def get_profile(request, username):
     db_data = []
     async with app.ctx.pool.acquire() as con:
         d = await con.fetchrow("SELECT is_public from Users where username = $1;", username)
-        is_public = t.get("is_public")
+        if not d:
+            return json({"error": "User not found"}, status=404)
+        is_public = d.get("is_public")
         if is_public == False:
-            return json({"error": "User doesn't exist or doesn't have a public profile"})
+            return json({"error": "User doesn't have a public profile"}, status=401)
         else:
-            rows = await con.fetch("SELECT id, rating, description, hours, played_platform from Games where username = $1;", username)
+            rows = await con.fetch("SELECT id, rating, description, hours, played_platform from Games where username = (SELECT id from Users where username = $1);", username)
             db_data = [{"id": int(row["id"]), "rating": str(row.get('rating')), "description": row.get(
                 'description'), "hours": row.get('hours'), "played_platform": row.get('played_platform')} for row in rows]
 

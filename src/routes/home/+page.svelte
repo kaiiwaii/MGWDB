@@ -12,11 +12,11 @@
         librarySearchTerm,
         showSearchPopup,
         temporaryGames,
-        pageLoaded,
         ratingTemplate
     } from "./stores.js";
+    import { Game } from "$lib/gameModel.js";
 
-    export let games;
+    export let games = [];
 
     const toggleSearchPopup = () => {
         $showSearchPopup = !$showSearchPopup;
@@ -38,7 +38,11 @@
         return
         } else {
             let data = await res.json()
-            games = data["games"]
+            console.log(data["games"])
+            for(let game of data["games"]) {
+                console.log(game)
+                games.push(new Game(game));
+            }    
             console.log(games)
             ratingTemplate.set(data["template"])
     }

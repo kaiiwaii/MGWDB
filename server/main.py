@@ -77,8 +77,11 @@ async def setup_db(app):
             id INTEGER,
             username BIGINT NOT NULL REFERENCES Users(id),
             rating VARCHAR(4096) DEFAULT '',
+            score INTEGER DEFAULT 0,
             description VARCHAR(4096) DEFAULT '',
             hours DOUBLE PRECISION DEFAULT 0,
+            date_from TIMESTAMP DEFAULT NOW(),
+            date_to TIMESTAMP DEFAULT NOW(),
             played_platform INTEGER DEFAULT -1
         );
                           
@@ -192,7 +195,8 @@ async def add_template(request):
 @app.post("/addgames")
 async def add_games(request):
     body = request.json
-
+    print(body[0].get("date_range").get("from")[0:10])
+    print(type(body[0].get("date_range").get("from")))
     if body:
         try:
             userid = jwt.decode(request.cookies.get(
@@ -200,11 +204,16 @@ async def add_games(request):
             async with app.ctx.pool.acquire() as con:
                 await con.executemany(
                     '''
-                    INSERT INTO Games (id, username, rating, description, hours, played_platform)
-                    VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id, username) DO UPDATE SET rating=$3, description=$4, hours=$5, played_platform=$6
+                    INSERT INTO Games (id, username, rating, description, hours, played_platform, date_from, date_to, score)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT(id, username)
+                    DO UPDATE SET rating=$3, description=$4, hours=$5, played_platform=$6, date_from=$7, date_to=$8, score=$9
                     ''',
-                    [(row['id'], userid, row.get('rating', ""), row.get('description', ""), row.get(
-                        'hours', 0), int(row.get('played_platform', -1))) for row in body]
+                    [(row['id'], userid, row.get('rating', ""), row.get('description', ""),
+                      row.get('hours', 0), int(row.get('played_platform', -1)),
+                        datetime.datetime.strptime(row.get("date_range").get("from"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),
+                        datetime.datetime.strptime(row.get("date_range").get("to"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),
+                        int(row.get("score"))
+                        ) for row in body]
                 )
                 return json({}, status=200)
 
@@ -280,9 +289,10 @@ async def get_games(request):
         async with app.ctx.pool.acquire() as con:
             t = await con.fetchrow("SELECT review_template from Users where id = $1;", userid)
             template = t.get("review_template")
-            rows = await con.fetch("SELECT id, rating, description, hours, played_platform from Games where username = $1;", userid)
+            rows = await con.fetch("SELECT id, rating, description, hours, played_platform, date_from, date_to, score from Games where username = $1;", userid)
             db_data = [{"id": int(row["id"]), "rating": str(row.get('rating')), "description": row.get(
-                'description'), "hours": row.get('hours'), "played_platform": row.get('played_platform')} for row in rows]
+                'description'), "hours": row.get('hours'), "played_platform": row.get('played_platform'),
+                "date_range": {"from": row.get("date_from").strftime('%Y-%m-%dT%H:%M:%S.%fZ'), "to": row.get("date_to").strftime('%Y-%m-%dT%H:%M:%S.%fZ')}, "score": int(row.get("score"))} for row in rows]
 
         if len(db_data) > 0:
             api_data = []
@@ -310,4 +320,4 @@ async def get_games(request):
         return json({"error": "Invalid token"}, status=401)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=4321, debug=True)

@@ -1,7 +1,7 @@
 
 <script lang="ts">
     import {formatReleaseDate} from '$lib/utils.js'
-    import { type Game } from '$lib/gameModel.js';
+    import { Game } from '$lib/gameModel.js';
     import {showSearchPopup, gamesNotSaved, temporaryGames, gameList} from './stores.js';
 
     let searchTerm = '';
@@ -41,7 +41,9 @@
                 });
 
                 const data = await response.json();
-                searchResults = data;
+                for(let game of data) {
+                  searchResults.push(new Game(game));
+                }
             }
         } catch (error) {
             console.error('Error fetching data from IGDB API', error);

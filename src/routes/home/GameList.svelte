@@ -21,8 +21,7 @@
         $showGamePopup = true;
     }
 
-
-    $: filteredGameList = fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name || ""}).map(el => el.original)
+    $: filteredGameList = $gameList.length > 0 ? fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name}).map(el => el.original) : []
 
     $: filteredTemporaryGames = fuzzy.filter($librarySearchTerm, $temporaryGames, {extract: function(g) {return g.name}}).map(el => el.original)
 

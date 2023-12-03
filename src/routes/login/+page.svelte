@@ -13,7 +13,7 @@
             method: "GET",
             credentials: "include",
             headers: {
-                "Access-Control-Allow-Origin": "http://127.0.0.1:4321"
+                "Access-Control-Allow-Origin": "http://0.0.0.0:5000"
             }
         })
         let data = await res.json()

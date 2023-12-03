@@ -39,12 +39,12 @@ def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 
-@app.middleware('response')
-async def add_cors_headers(request, response):
-    response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
-    response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5173'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+# @app.middleware('response')
+# async def add_cors_headers(request, response):
+#     response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
+#     response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5173'
+#     response.headers['Access-Control-Allow-Credentials'] = 'true'
+#     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
 
 
 async def refresh_token(app):
@@ -110,7 +110,7 @@ async def login(request, query: models.LoginRequest):
             """, query.email)
         if user:
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
-                r = json({"template": user.get("review_template")})
+                r = json({})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
                 r.add_cookie("token", tk, samesite="None", expires=datetime.datetime.now(
                 ) + datetime.timedelta(days=7), path="/")
@@ -195,8 +195,7 @@ async def add_template(request):
 @app.post("/addgames")
 async def add_games(request):
     body = request.json
-    print(body[0].get("date_range").get("from")[0:10])
-    print(type(body[0].get("date_range").get("from")))
+
     if body:
         try:
             userid = jwt.decode(request.cookies.get(
@@ -288,6 +287,8 @@ async def get_games(request):
         db_data = []
         async with app.ctx.pool.acquire() as con:
             t = await con.fetchrow("SELECT review_template from Users where id = $1;", userid)
+            if not t:
+                return json({"error": "No id"}, status=401)
             template = t.get("review_template")
             rows = await con.fetch("SELECT id, rating, description, hours, played_platform, date_from, date_to, score from Games where username = $1;", userid)
             db_data = [{"id": int(row["id"]), "rating": str(row.get('rating')), "description": row.get(

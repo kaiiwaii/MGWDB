@@ -73,6 +73,7 @@
       </div>
 
       <!-- List of results with images on the left and data on the right -->
+      {#if searchResults != null && searchResults.length > 0}
       <ul class="overflow-y-auto max-h-96">
         {#each searchResults as result}
           <li class="flex items-center mb-4">
@@ -110,6 +111,7 @@
           </li>
         {/each}
       </ul>
+      {/if}
 
       {#if isSearching && searchTerm !== ''}
         <div class="flex items-center justify-center mt-4">

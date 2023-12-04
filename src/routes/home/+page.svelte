@@ -43,7 +43,6 @@
                 console.log(game)
                 games.push(new Game(game));
             }    
-            console.log(games)
             ratingTemplate.set(data["template"])
     }
         $gameList = games && games.length > 0 ? games : [];

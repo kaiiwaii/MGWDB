@@ -25,11 +25,12 @@ export class Game {
     this.first_release_date = obj.first_release_date;
     this.url = obj.url;
     
-    this.rating = obj.rating || "";
+    this.rating = obj.rating || {};
     this.score = obj.score || 0;
     this.description = obj.description || "";
     this.hours = obj.hours || 0;
     this.played_platform = obj.played_platform || 0;
+
     if(!obj.date_range) {
       this.date_range = {from: new Date(), to: new Date()};
     } else if(typeof obj.date_range.from == "string" || typeof obj.date_range.to == "string") {

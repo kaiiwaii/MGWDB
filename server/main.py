@@ -207,7 +207,7 @@ async def add_games(request):
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT(id, username)
                     DO UPDATE SET rating=$3, description=$4, hours=$5, played_platform=$6, date_from=$7, date_to=$8, score=$9
                     ''',
-                    [(row['id'], userid, row.get('rating', ""), row.get('description', ""),
+                    [(row['id'], userid, str(row.get('rating', "")), row.get('description', ""),
                       row.get('hours', 0), int(row.get('played_platform', -1)),
                         datetime.datetime.strptime(row.get("date_range").get("from"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),
                         datetime.datetime.strptime(row.get("date_range").get("to"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),

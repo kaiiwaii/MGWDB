@@ -11,27 +11,21 @@
   export let ratingScore = 0;
 
   onMount(() => {
+
     if($ratingTemplate == null || Object.keys($ratingTemplate).length == 0) {
 
       invalidSystem = true;
       return
+
     } else {
       ratingSystem.parse(JSON.parse($ratingTemplate));
       items = ratingSystem.elements;
-      console.log(ratingValues);
-      if(ratingValues) {
-        ratingValues = JSON.parse(ratingValues);
-        if(Object.keys(ratingValues).length == 0) {
-          ratingValues = {}
-        } else {
-          // ratingValues = ratingValues ? JSON.parse(ratingValues) : {[[]]}
-          // console.log(ratingValues)
-          //fix this
-          getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
-        } 
-      } else {
-        ratingValues = {};
+      
+      ratingScore=0;
+      if(typeof ratingValues == "string") {        
+        ratingValues = JSON.parse(ratingValues)
       }
+      getAllValues(ratingValues).forEach(sv => ratingScore+=sv)      
     }
   });
 
@@ -50,8 +44,6 @@
   export let ratingValues;
 
   function computeWeight(value, weight, key, subkey) {
-    console.log(key)
-    console.log(subkey)
     ratingScore = 0;
     try {
       if(subkey) {
@@ -65,7 +57,7 @@
       ratingValues[key] = []
       ratingValues[key][subkey] = Math.round(value * weight)
     }
-    console.log(ratingValues)
+
     getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
     
   }

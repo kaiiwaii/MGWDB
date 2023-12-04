@@ -2,12 +2,12 @@ import { writable } from "svelte/store";
 
 export class Game {
   id: number;
-  name: string;
-  cover: { image_id: string };
-  platforms: { id: number; abbreviation: string }[];
-  genres: { name: string }[];
-  first_release_date: number;
-  url: string;
+  name?: string;
+  cover?: { image_id: string };
+  platforms?: { id: number; abbreviation: string }[];
+  genres?: { name: string }[];
+  first_release_date?: number;
+  url?: string;
 
   rating: string;
   score: number;
@@ -17,7 +17,7 @@ export class Game {
   date_range: {from: Date, to: Date};
 
   constructor(obj) {
-    this.id = obj.id ;
+    this.id = obj.id;
     this.name = obj.name;
     this.cover = obj.cover;
     this.platforms = obj.platforms;

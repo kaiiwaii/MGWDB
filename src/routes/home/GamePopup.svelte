@@ -35,7 +35,7 @@
   function modifyGame() {
 
       let idx = $gameList.findIndex(g => g.id == selectedGame.id);
-
+    console.log(JSON.stringify(selectedCopy), "\n", JSON.stringify(selectedGame));
       if(idx != -1) {
         let srating = selectedCopy.rating ? JSON.stringify(selectedCopy.rating, function replacer(key, value) {
           if (Array.isArray(value) && value.length === 0) {
@@ -75,6 +75,7 @@
   }      
   }
   onMount(() => {
+    
       ClassicEditor
       .create( document.querySelector('#description_editor') , {
         
@@ -94,26 +95,26 @@
 {#if $showGamePopup}
   <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center z-20">
     <div class="absolute w-full h-full bg-black opacity-50"></div>
-    <div class="relative z-10 p-4 bg-white rounded-md shadow-md w-4/5 max-h-[90%] overflow-y-auto">
+    <div class="relative z-10 p-4 bg-white dark:text-white dark:bg-gray-900 rounded-md shadow-md w-4/5 max-h-[90%] overflow-y-auto">
       <button class="top-0 right-5 text-white bg-blue-500 rounded-md p-2 sticky z-10" on:click={saveAndExit}>Save and Exit</button>
       
       {#if selectedGame}
         <img src={`//images.igdb.com/igdb/image/upload/t_screenshot_big/${selectedGame.cover?.image_id}.jpg`} alt={selectedGame.name} class="mx-0 w-full object-cover h-[30vh] rounded-md" />
         <h2 class="text-xl font-semibold mt-4">{selectedGame.name}</h2>
         
-        <label class="text-gray-500" for="description">Description:</label>
-        <div id="description_editor" class="mt-2 max-h-[30%]"></div>
+        <label class="text-gray-500 dark:text-gray-200" for="description">Description:</label>
+        <div id="description_editor" class="mt-2 max-h-[30%] --ck-color-base-background: #000"></div>
         
         <RatingComponent bind:ratingValues={selectedCopy.rating} bind:ratingScore={selectedCopy.score}/>
 
-        <label class="text-gray-500 mt-2" for="hours">Hours Played:</label>
+        <label class="text-gray-500 dark:text-gray-200 mt-2" for="hours">Hours Played:</label>
         <input type="number" id="hours" class="w-full rounded-md p-2" bind:value={selectedCopy.hours} />
 
         <div class="flex flex-wrap items-center mt-2 pb-1">
-          <label class="text-gray-500" for="date_from">Start Date:</label>
+          <label class="text-gray-500 dark:text-gray-200" for="date_from">Start Date:</label>
           <DateInput format="dd-MM-yyyy" bind:value={date_from} class="ml-2" />
         
-          <label class="text-gray-500 ml-2" for="date_to">End Date:</label>
+          <label class="text-gray-500 dark:text-gray-200 ml-2" for="date_to">End Date:</label>
           <DateInput format="dd-MM-yyyy" bind:value={date_to} class="ml-2" />
         </div>
       

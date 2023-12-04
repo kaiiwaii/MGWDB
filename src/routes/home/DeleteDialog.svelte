@@ -57,7 +57,7 @@
 
 <dialog
     id="delete_dialog"
-    class="fixed inset-1/2 bg-white p-8 rounded-md shadow-lg z-50 transform -translate-x-1/2 -translate-y-1/2 lg:w-[30%] w-[80%]"
+    class="fixed inset-1/2 dark:bg-gray-900 dark:text-white bg-white p-8 rounded-md shadow-lg z-50 transform -translate-x-1/2 -translate-y-1/2 lg:w-[30%] w-[80%]"
 >
     <h1 class="text-xl font-bold mb-4">Do you want to delete the game?</h1>
     <button

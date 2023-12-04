@@ -60,7 +60,7 @@
 
 {#if $showSearchPopup}
   <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-    <div class="bg-white p-4 rounded shadow-lg md:w-1/2">
+    <div class="bg-white p-4 rounded shadow-lg md:w-1/2 dark:bg-gray-900">
       <!-- Search bar at the top center -->
       <div class="flex mb-4">
         <input
@@ -68,16 +68,16 @@
           placeholder="Search..."
           bind:value={searchTerm}
           on:input={debouncedSearch}
-          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          class="w-full p-2 border border-gray-300 rounded dark:bg-gray-500 focus:outline-none focus:border-blue-500"
         />
-        <button on:click={fetchData} class="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+        <button on:click={fetchData} class="ml-2 px-4 py-2 bg-blue-500 dark:bg-blue-800 text-white rounded">
           Search
         </button>
       </div>
 
       <!-- List of results with images on the left and data on the right -->
       {#if searchResults != null && searchResults.length > 0}
-      <ul class="overflow-y-auto max-h-96">
+      <ul class="overflow-y-auto max-h-96 dark:text-white">
         {#each searchResults as result}
           <li class="flex items-center mb-4">
             <!-- Image on the left -->
@@ -105,7 +105,7 @@
                   $temporaryGames = $temporaryGames;
                   games_to_add_length++;
                 }}
-                class="{$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full'}"
+                class="{$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id) ? 'mt-2 bg-gray-500 text-white cursor-not-allowed px-4 py-2 rounded-full' : 'mt-2 bg-green-500 text-white px-4 py-2 rounded-full dark:bg-green-800'}"
                 disabled="{$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id)}"
               >
                 {$temporaryGames.some(g=>g.id === result.id) || $gameList.some(g=>g.id === result.id) ? 'Game Added' : 'Add Game'}
@@ -124,7 +124,7 @@
         </div>
       {/if}
 
-      <button on:click={() => {if(games_to_add_length>0){$gamesNotSaved=true}closePopup()}} class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-full">
+      <button on:click={() => {if(games_to_add_length>0){$gamesNotSaved=true}closePopup()}} class="mt-4 bg-blue-500 dark:bg-blue-800 text-white px-4 py-2 rounded-full">
         {games_to_add_length > 0 ? 'Add selected games and close' : 'Close'}
       </button>
     </div>

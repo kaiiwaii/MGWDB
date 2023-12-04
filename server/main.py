@@ -39,12 +39,12 @@ def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 
-# @app.middleware('response')
-# async def add_cors_headers(request, response):
-#     response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
-#     response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5173'
-#     response.headers['Access-Control-Allow-Credentials'] = 'true'
-#     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+@app.middleware('response')
+async def add_cors_headers(request, response):
+    response.headers['Access-Control-Allow-Headers'] = 'access-control-allow-origin'
+    response.headers['Access-Control-Allow-Origin'] = 'http://127.0.0.1:5173'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
 
 
 async def refresh_token(app):

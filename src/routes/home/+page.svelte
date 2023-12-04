@@ -61,7 +61,6 @@
     function applyGames() {
 
         $isSavingGames = true;
-
         try {
             fetch(`${VITE_API_URL}/addgames`, {
                 method: "POST",
@@ -81,17 +80,21 @@
     }
 </script>
 
-<html lang="en">
-    <head>
+<svelte:head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MGWDB</title>
-    </head>
+</svelte:head>
+
+
+<main class="h-screen dark:bg-gray-800 bg-white m-0">
     {#await loaded}
-    <h1>Loading...</h1>
+    <body class="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-800">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-5 border-blue-500 border-r-4 border-b-4 border-gray-300"></div>
+      </body>
     {:then}
-    <body class="bg-white">
-        <nav class="bg-blue-500 p-4">
+    <body class="bg-white dark:bg-gray-800 border-color-gray-800 h-screen p-2">
+        <nav class="dark:bg-blue-800 bg-blue-500 p-4 m-2 rounded-full">
             <div
                 class="container mx-auto flex flex-col md:flex-row items-center"
             >
@@ -106,7 +109,7 @@
                         type="search"
                         placeholder="Search..."
                         bind:value={$librarySearchTerm}
-                        class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border border-gray-300 focus:outline-none focus:border-blue-700"
+                        class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border dark:bg-gray-500 border-gray-300 focus:outline-none focus:border-blue-700"
                     />
                 </div>
 
@@ -121,7 +124,7 @@
                             <button
                                 on:click={applyGames}
                                 disabled={$isSavingGames}
-                                class="bg-red-500 text-white px-4 py-2 rounded-md z-10"
+                                class="bg-red-500 dark:bg-red-800 text-white px-4 py-2 rounded-md z-10"
                             >
                                 {$isSavingGames ? "Saving..." : "Save games"}
                             </button>
@@ -135,7 +138,7 @@
                             disabled={$isSavingGames}
                             class="{$isSavingGames
                                 ? 'bg-gray-500 cursor-not-allowed'
-                                : 'bg-green-500 text-white'} px-4 py-2 rounded-md z-10"
+                                : 'bg-green-500 dark:bg-green-800 text-white'} px-4 py-2 rounded-md z-10"
                         >
                             Add Game
                         </button>
@@ -152,18 +155,18 @@
                         class="h-8 w-8 rounded-full cursor-pointer"
                     />
                     <div
-                        class={`absolute right-0 w-48 bg-white border rounded-md shadow-lg', ${
+                        class={`absolute right-0 w-48 dark:bg-gray-600 border rounded-md shadow-lg', ${
                             showProfileDropdown ? "block" : "hidden"
                         }`}
                     >
                         <button
                             on:click={() => goto("/template")}
-                            class="block border-0 mx-auto py-2 w-full text-gray-800 hover:bg-blue-600 hover:text-white"
+                            class="block border-0 mx-auto py-2 w-full dark:text-black  text-gray-800 hover:bg-blue-600 hover:text-white"
                             >Edit review template</button
                         >
                         <button
                             on:click={logOut}
-                            class="block mx-auto w-full py-2 text-gray-800 hover:bg-blue-600 hover:text-white"
+                            class="block mx-auto w-full py-2 dark:text-black  text-gray-800 hover:bg-blue-600 hover:text-white"
                             >Log out</button
                         >
                     </div>
@@ -176,7 +179,7 @@
     {:catch error}
     {error}
     {/await}
-</html>
+</main>
 
 <style>
     @import url("https://fonts.googleapis.com/css2?family=Kanit:wght@500&display=swap");

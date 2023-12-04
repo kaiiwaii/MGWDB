@@ -104,16 +104,16 @@
 </script>
 
 {#if !invalidSystem}
-<main class="pt-6 bg-white mx-auto text-center">
+<main class="pt-6 bg-white mx-auto text-center dark:bg-gray-900">
   <h1 class="text-blue-600 text-2xl mb-4 mx-auto font-bold text-[3rem] pb-2">{Math.round(ratingScore)}</h1>
   {#each items as item}
     <div id="element_container" class="w-full lg:w-[60%] mb-6 border-[3px] p-2 mx-auto">
-      <h2 class="text-gray-800 text-lg mb-2 text-left">{item.name} ({item.weight}%)</h2>
+      <h2 class="text-gray-800 dark:text-gray-100 text-lg mb-2 text-left">{item.name} ({item.weight}%)</h2>
 
       {#if isGroup(item)}
         {#each item.categories as subitem}
-          <div class="flex items-center mb-4 w-full">
-            <h1 class="text-gray-800 text-md mr-2">{subitem.name} ({subitem.weight}%)</h1>
+          <div class="flex items-center mb-4 w-full text-gray-800 dark:text-gray-100">
+            <h1 class="text-md mr-2">{subitem.name} ({subitem.weight}%)</h1>
             <div class="flex items-center w-[100%] lg:w-[60%]">
               <Range
                 min={0}
@@ -125,7 +125,7 @@
           </div>
         {/each}
       {:else if isCategory(item)}
-        <div class="flex items-center mb-4">
+        <div class="flex items-center mb-4 dark:text-gray-100">
           <div class="flex items-center w-[100%] lg:w-[40%]">
             <Range
               min={0}

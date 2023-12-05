@@ -32,7 +32,7 @@
 <div>
 {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
-<Range class="max-w-[90%"
+<Range class="w-[90%]"
 min={30}
 max={100}
 bind:value={gameCardScale}

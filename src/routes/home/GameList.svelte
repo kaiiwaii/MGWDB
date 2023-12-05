@@ -52,7 +52,7 @@
 
 <div class="mt-4 flex flex-wrap justify-center z-0 bg-white dark:bg-gray-800 max-h-screen overflow-y-auto">
   {#each filteredGameList as game, idx}
-    <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
+    <div class="m-2 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
       //OnMount sometimes doesn't work
 
       selected_game.game = game;
@@ -67,7 +67,7 @@
   {/each}
 
   {#each filteredTemporaryGames as game, idx}
-    <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
+    <div class="m-2 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
       selected_game.game = game;
       selected_game.index = idx
       selected_game.saved = false;

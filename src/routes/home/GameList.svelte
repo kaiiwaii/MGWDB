@@ -50,7 +50,7 @@
   <!-- <Divider /> -->
 </ContextMenu>
 
-<div class="mt-4 flex flex-wrap justify-center z-0 bg-white dark:bg-gray-800 max-h-screen overflow-y-auto">
+<div class="mt-4 flex flex-wrap justify-center z-0 bg-white dark:bg-gray-800 overflow-y-auto h-screen">
   {#each filteredGameList as game, idx}
     <div class="m-2 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
       //OnMount sometimes doesn't work

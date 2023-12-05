@@ -7,12 +7,13 @@
     let username = ""
     let password = ""
     let code = ""
+    let is_public = true;
     // Existing functions and variables...
 
     // Add any additional functions or variables for signup functionality
 
     async function signUp() {
-        let res = await fetch(`${import.meta.env.VITE_API_URL}/signup?username=${username}&password=${password}&email=${email}&code=${code}`, {method: "POST"})
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/signup?username=${username}&password=${password}&email=${email}&code=${code}&public=${is_public}`, {method: "POST"})
         if(res.status != 200) {
             alert("Error signing up")
         } else {
@@ -50,6 +51,10 @@
                     <div class="mb-4">
                         <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
                         <input type="password" id="password" name="password" bind:value={password} class="mt-1 p-2 w-full border rounded-md" required />
+                    </div>
+                    <div class="mb-4">
+                        <label for="public" class="block text-sm font-medium text-gray-600">Public profile?</label>
+                        <input type="checkbox" id="public" name="public" bind:value={is_public} class="border rounded-md scale-150" required />
                     </div>
         
                     <!-- Add more form fields as needed -->

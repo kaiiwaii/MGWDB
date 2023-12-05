@@ -131,8 +131,8 @@ async def signup(request, query: models.SignupRequest):
         return json({"error": "Invalid code"}, status=401)
     async with app.ctx.pool.acquire() as con:
         await con.execute('''
-        INSERT INTO Users(username, password, email) values ($1, $2, $3);
-        ''', query.username, password, query.email)
+        INSERT INTO Users(username, password, email, is_public) values ($1, $2, $3, $4);
+        ''', query.username, password, query.email, query.public)
 
     return json({}, status=200)
 
@@ -207,7 +207,7 @@ async def add_games(request):
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT(id, username)
                     DO UPDATE SET rating=$3, description=$4, hours=$5, played_platform=$6, date_from=$7, date_to=$8, score=$9
                     ''',
-                    [(row['id'], userid, str(row.get('rating', "")), row.get('description', ""),
+                    [(row['id'], userid, row.get('rating', ""), row.get('description', ""),
                       row.get('hours', 0), int(row.get('played_platform', -1)),
                         datetime.datetime.strptime(row.get("date_range").get("from"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),
                         datetime.datetime.strptime(row.get("date_range").get("to"), "%Y-%m-%dT%H:%M:%S.%fZ").date(),
@@ -246,7 +246,7 @@ async def delete_games(request):
 async def get_profile(request, username):
     db_data = []
     async with app.ctx.pool.acquire() as con:
-        d = await con.fetchrow("SELECT is_public from Users where username = $1;", username)
+        d = await con.fetchrow("SELECT is_public, review_template from Users where username = $1;", username)
         if not d:
             return json({"error": "User not found"}, status=404)
         is_public = d.get("is_public")
@@ -277,7 +277,7 @@ async def get_profile(request, username):
                             continue
                         db_entry.update(api_entry)
 
-            return json({"games": db_data})    
+            return json({"games": db_data, "template": d.get("review_template")})    
 
 
 @app.get("/mygames")

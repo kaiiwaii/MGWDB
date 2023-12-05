@@ -27,6 +27,20 @@
     };
 
     let loaded;
+    let darkMode;
+
+    function toggleDarkMode() {
+
+        darkMode = !darkMode
+        
+        if(darkMode) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+            
+        
+    }
 
     async function loadAll() {
         let res = await fetch(`${import.meta.env.VITE_API_URL}/mygames`, {
@@ -47,8 +61,15 @@
     }
         $gameList = games && games.length > 0 ? games : [];
     }
-
-    onMount(() => loaded = loadAll());
+    onMount(() => {
+        darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+        if(darkMode) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+        loaded = loadAll();
+    })
 
     function logOut() {
         document.cookie =
@@ -63,9 +84,26 @@
         try {
             fetch(`${VITE_API_URL}/addgames`, {
                 method: "POST",
-                body: JSON.stringify($temporaryGames),
+                body: JSON.stringify($temporaryGames.map(({...g}) => {
+                    delete g.cover;
+                    delete g.name;
+                    delete g.first_release_date;
+                    delete g.first_release_date;
+                    delete g.platforms;
+                    delete g.genres;
+                    delete g.url;
+                    g.rating = JSON.stringify(g.rating,function replacer(key, value) {
+                            if (Array.isArray(value) && value.length === 0) {
+                                return { ...value }; // Converts empty array with string properties into a POJO
+                            }
+                            return value;
+                            })
+                    return g;
+                })),
                 credentials: "include",
             });
+            console.log($temporaryGames)
+            console.log()
             $gameList.push(...$temporaryGames);
             $gameList = $gameList;
             $temporaryGames.length = 0;
@@ -93,7 +131,7 @@
       </body>
     {:then}
     <body class="bg-white dark:bg-gray-800 border-color-gray-800 h-screen p-2">
-        <nav class="dark:bg-blue-800 bg-blue-500 p-4 m-2 rounded-full">
+        <nav class="dark:bg-blue-800 bg-blue-500 p-4 m-0 rounded-md lg:m-2">
             <div
                 class="container mx-auto flex flex-col md:flex-row items-center"
             >
@@ -145,31 +183,40 @@
                 </div>
 
                 <!-- Foto de perfil con dropdown -->
-                <button
-                    class="relative z-20 border-0"
-                    on:click={toggleProfileDropdown}
-                >
-                <img src="/user-solid.svg"
-                        alt="Perfil"
-                        class="h-8 w-8 rounded-full cursor-pointer"
-                    />
-                    <div
-                        class={`absolute right-0 w-48 dark:bg-gray-600 border rounded-md shadow-lg', ${
-                            showProfileDropdown ? "block" : "hidden"
-                        }`}
+                <div class="flex items-center space-x-4">
+                    <button
+                        class="relative z-20 border-0"
+                        on:click={toggleProfileDropdown}
                     >
-                        <button
-                            on:click={() => goto("/template")}
-                            class="block border-0 mx-auto py-2 w-full dark:text-black  text-gray-800 hover:bg-blue-600 hover:text-white"
-                            >Edit review template</button
+                        <img src="/user-solid.svg" alt="Profile" class="h-8 w-8 rounded-full cursor-pointer" />
+                        <div
+                            class={`absolute right-1 m-1 left-1 w-48 dark:bg-gray-600 border rounded-md shadow-lg ${
+                                showProfileDropdown ? 'block' : 'hidden'
+                            }`}
                         >
-                        <button
-                            on:click={logOut}
-                            class="block mx-auto w-full py-2 dark:text-black  text-gray-800 hover:bg-blue-600 hover:text-white"
-                            >Log out</button
-                        >
-                    </div>
-                </button>
+                            <button
+                                on:click={() => goto('/template')}
+                                class="block border-0 mx-auto py-2 w-full dark:text-black text-gray-800 hover:bg-blue-600 hover:text-white"
+                            >
+                                Edit review template
+                            </button>
+                            <button
+                                on:click={logOut}
+                                class="block mx-auto w-full py-2 dark:text-black text-gray-800 hover:bg-blue-600 hover:text-white"
+                            >
+                                Log out
+                            </button>
+                        </div>
+                    </button>
+
+                    <span class="dark:text-gray-400 text-white mr-2">🌞</span> <!-- Sun icon for light mode -->
+                    <label class="switch inline-block relative w-10 h-4">
+                        <input type="checkbox" checked={darkMode} on:change={toggleDarkMode} class="absolute opacity-0 h-0 w-0" />
+                        <span class="dark:bg-blue-700 bg-gray-400 absolute cursor-pointer h-4 w-10 rounded-full -ml-1 transition-all duration-300"></span>
+                        <span class="slider inline-block absolute cursor-pointer h-4 w-4 bg-white rounded-full -ml-2 transition-all duration-300 transform dark:translate-x-6 translate-x-0"></span>
+                    </label>
+                    <span class="dark:text-gray-400 text-white ml-2">🌙</span> <!-- Moon icon for dark mode -->
+                </div>
             </div>
         </nav>
         <Popup />

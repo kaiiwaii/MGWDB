@@ -14,6 +14,7 @@ class SignupRequest:
     username: str
     password: str
     code: str
+    public: str
 
 
 @dataclass

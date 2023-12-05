@@ -10,52 +10,22 @@
 
   export let ratingScore = 0;
 
-  let example = {
-    "name": "MyRatingSystem",
-    "elements": {
-        "Art": {
-            "weight": 40,
-            "categories": {
-                "Graphics": 40,
-                "Animations": 40,
-                "Other": 20
-            }
-        },
-        
-        "Characters": 20,
-
-        "Music": {
-            "weight": 40,
-            "categories": {
-                "Soundtrack": 80,
-                "Effects": 20
-            }
-        }
-    }
-};
-
   onMount(() => {
+
     if($ratingTemplate == null || Object.keys($ratingTemplate).length == 0) {
 
       invalidSystem = true;
+      return
 
     } else {
       ratingSystem.parse(JSON.parse($ratingTemplate));
       items = ratingSystem.elements;
-      console.log(ratingValues);
-      if(ratingValues) {
-        ratingValues = JSON.parse(ratingValues);
-      if(Object.keys(ratingValues).length == 0) {
-        ratingValues = {}
-      } else {
-        // ratingValues = ratingValues ? JSON.parse(ratingValues) : {[[]]}
-        // console.log(ratingValues)
-        //fix this
-        getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
-      } 
-      } else {
-        ratingValues = {};
+      
+      ratingScore=0;
+      if(typeof ratingValues == "string") {    
+        ratingValues = JSON.parse(ratingValues)
       }
+      getAllValues(ratingValues).forEach(sv => ratingScore+=sv)      
     }
   });
 
@@ -74,8 +44,6 @@
   export let ratingValues;
 
   function computeWeight(value, weight, key, subkey) {
-    console.log(key)
-    console.log(subkey)
     ratingScore = 0;
     try {
       if(subkey) {
@@ -89,7 +57,7 @@
       ratingValues[key] = []
       ratingValues[key][subkey] = Math.round(value * weight)
     }
-    console.log(ratingValues)
+
     getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
     
   }
@@ -128,38 +96,38 @@
 </script>
 
 {#if !invalidSystem}
-<main class="pt-6 bg-white mx-auto text-center">
+<main class="pt-6 bg-white mx-auto text-center dark:bg-gray-900">
   <h1 class="text-blue-600 text-2xl mb-4 mx-auto font-bold text-[3rem] pb-2">{Math.round(ratingScore)}</h1>
   {#each items as item}
     <div id="element_container" class="w-full lg:w-[60%] mb-6 border-[3px] p-2 mx-auto">
-      <h2 class="text-gray-800 text-lg mb-2 text-left">{item.name} ({item.weight}%)</h2>
+      <h2 class="text-gray-800 dark:text-gray-100 text-lg mb-2 text-left">{item.name} ({item.weight}%)</h2>
 
       {#if isGroup(item)}
         {#each item.categories as subitem}
-          <div class="flex items-center mb-4 w-full">
-            <h1 class="text-gray-800 text-md mr-2">{subitem.name} ({subitem.weight}%)</h1>
+          <div class="flex items-center mb-4 w-full text-gray-800 dark:text-gray-100">
+            <h1 class="text-md mr-2">{subitem.name} ({subitem.weight}%)</h1>
             <div style="pointer-events: none;" class="flex items-center w-[100%] lg:w-[60%]">
               <Range
                 min={0}
                 max={100}
-                value={getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100))}
+                value={Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}
                 on:change={(v) => computeWeight(v.detail.value, (item.weight / 100) * (subitem.weight / 100), item.name, subitem.name)}
               />
-              {Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}
             </div>
+            <span>{Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}</span>
           </div>
         {/each}
       {:else if isCategory(item)}
-        <div class="flex items-center mb-4">
-          <div style="pointer-events:none;" class="flex items-center w-[100%] lg:w-[40%]">
+        <div class="flex items-center mb-4 dark:text-gray-100">
+          <div style="pointer-events: none;" class="flex items-center w-[100%] lg:w-[40%]">
             <Range
               min={0}
               max={100}
               value={getScoreValues(item.name, null) / (item.weight/100)}
               on:change={(v) => computeWeight(v.detail.value, item.weight / 100, item.name, 0)}
             />
-            {Math.round(getScoreValues(item.name, null) / (item.weight/100))}
           </div>
+          <span>{getScoreValues(item.name, null) / (item.weight/100)}</span>
         </div>
       {:else if isSetting(item)}
         <div class="flex items-center mb-4">
@@ -168,14 +136,10 @@
             <span class="text-gray-800">{item.name}</span>
           </label>
         </div>
-      {/if}
+{/if}
     </div>
   {/each}
 </main>
 {:else}
 <h1 class="text-xl mb-4 mx-auto font-bold text-[3rem] p-5">Please configure your rating system to add scores</h1>
 {/if}
-
-
-
-

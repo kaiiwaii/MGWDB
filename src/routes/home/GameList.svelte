@@ -21,9 +21,10 @@
         $showGamePopup = true;
     }
 
-    $: filteredGameList = $gameList.length > 0 ? fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name}).map(el => el.original) : []
+    $: filteredGameList = $gameList.length > 0 ? [...fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name}).map(el => el.original)].sort((a, b) => b.score - a.score) : []
 
-    $: filteredTemporaryGames = fuzzy.filter($librarySearchTerm, $temporaryGames, {extract: function(g) {return g.name}}).map(el => el.original)
+
+    $: filteredTemporaryGames = [...fuzzy.filter($librarySearchTerm, $temporaryGames, {extract: function(g) {return g.name}}).map(el => el.original)].sort((a, b) => b.score - a.score)
 
   </script>
 
@@ -38,7 +39,7 @@
   {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
 <DeleteDialog bind:showDeleteDialog {selected_game}/>
-<Range
+<Range class="max-w-[90%"
   min={30}
   max={100}
   bind:value={gameCardScale}
@@ -60,7 +61,7 @@
       ctxMenu.show(e)
       }} on:click={() => show_game_popup(game)}>
       <ContextMenu />
-      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-md z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
+      <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-2xl z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
       <!-- <h1 style="font-size:{Math.trunc(25 * (gameCardScale/100))}px; max-width:{Math.trunc(264 * (gameCardScale/100))}px"><b>{game.name}</b></h1> -->
     </div>
   {/each}

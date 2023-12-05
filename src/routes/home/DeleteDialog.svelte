@@ -46,6 +46,13 @@
                 $gameList.splice(selected_game.index, 1);
                 $gameList = $gameList;
             } else {
+                const response = await fetch(
+                    `${VITE_API_URL}/deletegame?id=${selected_game.game.id}`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                    },
+                );
                 $temporaryGames.splice(selected_game.index, 1);
                 $temporaryGames = $temporaryGames;
             }

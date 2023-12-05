@@ -22,7 +22,7 @@
       items = ratingSystem.elements;
       
       ratingScore=0;
-      if(typeof ratingValues == "string") {        
+      if(typeof ratingValues == "string") {    
         ratingValues = JSON.parse(ratingValues)
       }
       getAllValues(ratingValues).forEach(sv => ratingScore+=sv)      
@@ -110,10 +110,11 @@
               <Range
                 min={0}
                 max={100}
-                value={getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100))}
+                value={Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}
                 on:change={(v) => computeWeight(v.detail.value, (item.weight / 100) * (subitem.weight / 100), item.name, subitem.name)}
               />
             </div>
+            <span>{Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}</span>
           </div>
         {/each}
       {:else if isCategory(item)}
@@ -122,10 +123,11 @@
             <Range
               min={0}
               max={100}
-              value={getScoreValues(item.name, null) / (item.weight/100)}
+              value={Math.round(getScoreValues(item.name, null) / (item.weight/100))}
               on:change={(v) => computeWeight(v.detail.value, item.weight / 100, item.name, 0)}
             />
           </div>
+          <span>{Math.round(getScoreValues(item.name, null) / (item.weight/100))}</span>
         </div>
       {:else if isSetting(item)}
         <div class="flex items-center mb-4">

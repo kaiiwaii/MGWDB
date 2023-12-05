@@ -114,7 +114,7 @@
         <title>MGWDB</title>
     </head>
     {#if userNotFound}
-    <body class="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-800">
+    <body class="flex justify-center items-center h-full bg-gray-100 dark:bg-gray-800">
         <h1 class="text-5xl dark:text-white">[404] User not found</h1>
     </body>
     {:else if userNotPublic}
@@ -123,11 +123,11 @@
     </body>
     {:else}
     {#await loaded}
-    <body class="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-800">
+    <body class="flex justify-center items-center h-full bg-gray-100 dark:bg-gray-800">
         <div class="animate-spin rounded-full h-16 w-16 border-t-5 border-blue-500 border-r-4 border-b-4 border-gray-300"></div>
       </body>
     {:then}
-    <body class="bg-white dark:bg-gray-800 border-color-gray-800 h-screen p-2">
+    <body class="bg-white dark:bg-gray-800 border-color-gray-800 max-h-screen h-full overflow-hidden p-2">
         <nav class="dark:bg-blue-800 bg-blue-500 p-4 m-0 rounded-md lg:m-2">
             <div
                 class="container mx-auto flex flex-col md:flex-row items-center"

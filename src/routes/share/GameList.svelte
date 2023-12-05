@@ -43,7 +43,7 @@ bind:value={gameCardScale}
 <!-- <Divider /> -->
 </ContextMenu>
 
-<div class="mt-4 flex flex-wrap justify-center z-0 bg-white dark:bg-gray-800">
+<div class="mt-4 flex flex-wrap justify-center z-0 bg-white dark:bg-gray-800 max-h-screen overflow-y-auto">
 {#each filteredGameList as game, idx}
   <div class="m-4 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
     //OnMount sometimes doesn't work

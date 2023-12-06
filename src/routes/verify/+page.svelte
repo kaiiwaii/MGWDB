@@ -4,7 +4,7 @@
 
     async function verify() {
         if (token) {
-            let res = await fetch(`${import.meta.env.VITE_API_URL}/verify?token=${token}`, {method: "POST"})
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/verify/${token}`, {method: "POST"})
             if(res.status != 200) {
                 throw {
                     message: "Error while verifying"

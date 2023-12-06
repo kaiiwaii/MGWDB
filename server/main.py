@@ -112,7 +112,7 @@ async def send_verif_email(username, email, token):
     mailer.set_mail_from(mail_from, mail_body)
     mailer.set_mail_to(recipients, mail_body)
     mailer.set_subject("MGHDB Verification", mail_body)
-    mailer.set_html_content(f"<a href='https://mghdb.com/verify?token={token}'>Click to verify</a>", mail_body)
+    mailer.set_html_content(f"<a href='http://127.0.0.1:5173/verify?token={token}'>Click to verify</a>", mail_body)
 
     loop = asyncio.get_running_loop()
     
@@ -167,13 +167,13 @@ async def signup(request, query: models.SignupRequest):
 @app.post("/verify/<token>")
 async def verify_email(request, token):
     try:
-        userid = jwt.decode(request.cookies.get("token"),
+        userid = jwt.decode(token,
                    JWT_SECRET, algorithms=['HS256'])["id"]
         
         async with app.ctx.pool.acquire() as con:
                 await con.execute(
                     '''
-                    UPDATE Users SET verified = true WHERE id=$2
+                    UPDATE Users SET verified = true WHERE id=$1
                     ''',
                     int(userid)
                 )

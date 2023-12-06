@@ -8,6 +8,7 @@ import jwt
 import bcrypt
 import time
 import datetime
+from mailersend import emails
 
 from os import environ as env
 from dotenv import load_dotenv
@@ -26,13 +27,13 @@ IGDB_SECRET = env['IGDB_SECRET']
 SALT = env['SALT'].encode()
 DB_URL = env["DB_URL"]
 CODE_SECRET = env['CODE_SECRET']
+MAILERSEND_API_KEY = env["MAILERSEND_API_KEY"]
 
 def write_token(data: dict):
     token_bytes = jwt.encode(data, JWT_SECRET, algorithm='HS256')
-    try:
-        return token_bytes.decode("utf-8")
-    except:
-        return token_bytes
+
+    return token_bytes.decode("utf-8")
+
 
 
 def chunker(seq, size):
@@ -65,12 +66,16 @@ async def setup_db(app):
         await con.execute("""
         CREATE TABLE IF NOT EXISTS Users (
             id BIGSERIAL PRIMARY KEY,
-            username varchar(64) NOT NULL, 
+            username varchar(64) NOT NULL UNIQUE, 
             password varchar(128) NOT NULL,
             email varchar(256) NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT NOW(),
             review_template VARCHAR(4096),
-            is_public BOOLEAN DEFAULT FALSE
+            is_public BOOLEAN DEFAULT FALSE,
+            verified BOOLEAN DEFAULT FALSE,
+            premium INTEGER DEFAULT 0,
+            gamelistcap INTEGER DEFAULT 100
+
         );
         CREATE TABLE IF NOT EXISTS Games (
             inner_id BIGSERIAL PRIMARY KEY,
@@ -97,6 +102,24 @@ async def setup_db(app):
         #     f name, genres.name, cover.image_id, first_release_date,platforms.id, platforms.abbreviation, url;
         # )
 
+async def send_verif_email(username, email, token):
+    mailer = emails.NewEmail(MAILERSEND_API_KEY)
+
+    mail_body = {}
+    mail_from = {"name": "MGHDB","email": "support@mghdb.com",}
+    recipients = [{"name": username,"email": email,}]
+
+    mailer.set_mail_from(mail_from, mail_body)
+    mailer.set_mail_to(recipients, mail_body)
+    mailer.set_subject("MGHDB Verification", mail_body)
+    mailer.set_html_content(f"<a href='https://mghdb.com/verify?token={token}'>Click to verify</a>", mail_body)
+
+    loop = asyncio.get_running_loop()
+    
+    res = await loop.run_in_executor(
+        None, lambda: mailer.send(mail_body))
+    print(res)
+    return res
 
 @app.get("/login")
 @validate(query=models.LoginRequest)
@@ -105,10 +128,13 @@ async def login(request, query: models.LoginRequest):
     async with app.ctx.pool.acquire() as con:
         user = await con.fetchrow(
             """
-            SELECT id, email, password FROM Users
+            SELECT id, email, password, verified FROM Users
             WHERE email = $1;
             """, query.email)
         if user:
+            if user["verified"] == False:
+                return json({"error": "Please verify your email"})
+            
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):
                 r = json({})
                 tk = write_token({"id": user["id"], "timestamp": time.time()})
@@ -130,11 +156,31 @@ async def signup(request, query: models.SignupRequest):
     except:
         return json({"error": "Invalid code"}, status=401)
     async with app.ctx.pool.acquire() as con:
-        await con.execute('''
-        INSERT INTO Users(username, password, email, is_public) values ($1, $2, $3, $4);
+        d = await con.fetchrow('''
+        INSERT INTO Users(username, password, email, is_public) values ($1, $2, $3, $4) RETURNING id;
         ''', query.username, password, query.email, query.public)
+        print(d["id"])
+    await send_verif_email(query.username, query.email, write_token({"id": d["id"]}))
 
     return json({}, status=200)
+
+@app.post("/verify/<token>")
+async def verify_email(request, token):
+    try:
+        userid = jwt.decode(request.cookies.get("token"),
+                   JWT_SECRET, algorithms=['HS256'])["id"]
+        
+        async with app.ctx.pool.acquire() as con:
+                await con.execute(
+                    '''
+                    UPDATE Users SET verified = true WHERE id=$2
+                    ''',
+                    int(userid)
+                )
+                return json({}, status=200)
+        
+    except jwt.exceptions.DecodeError:
+        return json({"error": "Invalid token"}, status=401)
 
 
 @app.get("api/searchgames")

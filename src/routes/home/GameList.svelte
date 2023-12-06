@@ -39,7 +39,7 @@
   {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
 <DeleteDialog bind:showDeleteDialog {selected_game}/>
-<Range class="w-[90%]"
+<Range class="w-[90%] mb-2"
   min={30}
   max={100}
   bind:value={gameCardScale}

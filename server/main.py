@@ -134,7 +134,7 @@ async def login(request, query: models.LoginRequest):
             WHERE email = $1;
             """, query.email)
         if user:
-            if user["verified"] == False:
+            if user["verified"] != True:
                 return json({"error": "Please verify your email"})
             
             if user["password"] == bcrypt.hashpw(query.password.encode(), SALT).decode("utf-8"):

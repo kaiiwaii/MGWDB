@@ -11,6 +11,7 @@
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   
   export let selectedGame: Game;
+  console.log(selectedGame)
 
   let selectedCopy = Object.assign({}, selectedGame)
 
@@ -129,11 +130,17 @@
 
         <label class="text-gray-500 mt-2 dark:text-gray-200" for="played_platform">Played Platform:</label>
         <select id="played_platform" class="w-full rounded-md p-2 dark:bg-dark-200" bind:value={selectedCopy.played_platform}>
-          {#each selectedGame.platforms?.map(p => p) as platform}
-			      <option value={platform.id}>
-				      {platform.abbreviation}
-			      </option>
-		      {/each}        
+          {#if selectedGame.platforms}
+            {#each selectedGame.platforms?.map(p => p) as platform}
+              <option value={platform.id}>
+                {platform.abbreviation}
+              </option>
+            {/each}
+          {:else}
+          <option value={-1}>
+            No data
+          </option>
+          {/if}        
         </select>
         
         <p class="text-gray-500 mt-2">Release Date: {formatReleaseDate(selectedGame.first_release_date)}</p>

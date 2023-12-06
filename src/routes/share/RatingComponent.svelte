@@ -34,7 +34,7 @@
       if(subkey) {
         return ratingValues[key][subkey]
       } else {
-        return ratingValues[key]
+        return ratingValues[key] || 0
       }
     } catch {
       return 0

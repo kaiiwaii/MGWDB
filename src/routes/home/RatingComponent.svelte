@@ -25,17 +25,23 @@
       ratingScore=0;
       if(typeof ratingValues == "string") {    
         ratingValues = JSON.parse(ratingValues)
+        ratingValuesComputed = Object.keys(Object.assign({}, 
+        ratingValues)).forEach(v => {
+          //TODO
+        })
       }
-      getAllValues(ratingValues).forEach(sv => ratingScore+=sv)      
+      console.log(ratingValues)
+      console.log(ratingValuesComputed)
+      getAllValues(ratingValuesComputed).forEach(sv => ratingScore+=sv)      
     }
   });
 
   function getScoreValues(key, subkey) {
     try {
       if(subkey) {
-        return ratingValues[key][subkey]
+        return ratingValuesComputed[key][subkey]
       } else {
-        return ratingValues[key] || 0
+        return ratingValuesComputed[key] || 0
       }
     } catch {
       return 0
@@ -43,23 +49,27 @@
   }
 
   export let ratingValues;
+  let ratingValuesComputed;
 
   function computeWeight(value, weight, key, subkey) {
     ratingScore = 0;
     try {
       if(subkey) {
         //ratingValues[key] = {}
-        ratingValues[key][subkey]=_.round(value * weight, 2)
-        console.log(ratingValues)
+        ratingValuesComputed[key][subkey]=_.round(value * weight, 2)
+        ratingValues[key][subkey] = value;
       } else {
-        ratingValues[key] = _.round(value * weight,2)
+        ratingValuesComputed[key] = _.round(value * weight,2)
+        ratingValues[key] = value
       }
     } catch {
+      ratingValuesComputed[key] = []
+      ratingValuesComputed[key][subkey] = _.round(value * weight, 2)
       ratingValues[key] = []
-      ratingValues[key][subkey] = _.round(value * weight, 2)
+      ratingValues[key][subkey] = value;
     }
 
-    getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
+    getAllValues(ratingValuesComputed).forEach(sv => ratingScore+=sv)
     
   }
 
@@ -111,7 +121,9 @@
               <Range
                 min={0}
                 max={100}
-                value={_.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)),2)}
+                value={_.round(
+                  getScoreValues(item.name, subitem.name)
+                ,2)}
                 on:change={(v) => computeWeight(v.detail.value, (item.weight / 100) * (subitem.weight / 100), item.name, subitem.name)}
               />
             </div>

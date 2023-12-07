@@ -102,7 +102,7 @@
 </style>
 
 {#if $showGamePopup}
-  <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center z-20">
+  <div class="fixed top-0 left-0 w-full h-full flex pb items-center justify-center z-20">
     <div class="absolute w-full h-full bg-black opacity-50"></div>
     <div class="relative z-10 p-4 bg-white dark:text-white dark:bg-gray-900 rounded-md shadow-md w-4/5 max-h-[90%] overflow-y-auto">
       <button class="top-0 mb-3 text-white bg-blue-500 rounded-md p-2 sticky z-10" on:click={saveAndExit}>Save and Exit</button>

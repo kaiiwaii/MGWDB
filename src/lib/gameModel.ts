@@ -1,5 +1,3 @@
-import { writable } from "svelte/store";
-
 export class Game {
   id: number;
   name?: string;
@@ -47,6 +45,28 @@ export interface selectedGame {
   index?: number;
   saved?: boolean;
 }
+
+
+export enum SortType {
+  Rating = 0,
+  Hours = 1,
+  Name = 2
+}
+export enum SortOrder {
+  Asc = 0,
+  Desc = 1
+}
+
+export class Sort {
+  type: SortType;
+  order: SortOrder;
+  
+  constructor(type?: SortType, order?: SortOrder) {
+    this.type = type || SortType.Rating;
+    this.order = order || SortOrder.Desc
+  }
+}
+
 // export interface GameResult {
 //     id: number,
 //     name: string;

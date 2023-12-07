@@ -12,9 +12,10 @@
         librarySearchTerm,
         showSearchPopup,
         temporaryGames,
-        ratingTemplate
+        ratingTemplate,
+        selectedSortType
     } from "./stores.js";
-    import { Game } from "$lib/gameModel.js";
+    import { Game, SortOrder, SortType } from "$lib/gameModel.js";
 
     export let games = [];
 
@@ -28,6 +29,7 @@
 
     let loaded;
     let darkMode;
+    let sortDropdownVisible = false;
 
     function toggleDarkMode() {
 
@@ -130,25 +132,49 @@
         <div class="animate-spin rounded-full h-16 w-16 border-t-5 border-blue-500 border-r-4 border-b-4 border-gray-300"></div>
       </body>
     {:then}
-    <body class="bg-white dark:bg-gray-800 border-color-gray-800 max-h-screen h-full p-2 overflow-hidden">
-        <nav class="dark:bg-blue-800 bg-blue-500 p-4 m-0 rounded-md lg:m-2">
-            <div
-                class="container mx-auto flex flex-col md:flex-row items-center"
-            >
+    <body class="bg-white dark:bg-[#263244] border-color-gray-800 max-h-screen h-full p-2 overflow-hidden">
+        <nav class="dark:bg-[#1b1f29] bg-blue-700 p-4 m-0 rounded-md lg:m-2">
+            <div class="container mx-auto flex flex-col md:flex-row items-center">
                 <!-- Logo a la izquierda con margen -->
                 <div class="mr-4 mb-4 md:mb-0">
-                    <img src="tu_logo.png" alt="Logo" class="h-8" />
+                    <img src="/f_mghdblogo.svg" alt="Logo" class="h-12" />
                 </div>
 
-                <!-- Barra de búsqueda en el centro con margen y padding -->
-                <div class="flex-grow w-full md:w-1/2 md:mr-4 mb-4 md:mb-0">
-                    <input
-                        type="search"
-                        placeholder="Search..."
-                        bind:value={$librarySearchTerm}
-                        class="px-4 py-2 w-full lg:max-w-[50%] mx-auto block rounded-md border dark:bg-gray-500 border-gray-300 focus:outline-none focus:border-blue-700"
-                    />
+                <div class="flex-grow w-full md:w-2/5 mb-4 md:mb-0 flex items-center mx-auto justify-center relative">
+                    <div class="w-4/6 flex relative">
+                        <input
+                            type="search"
+                            placeholder="Search..."
+                            bind:value={$librarySearchTerm}
+                            class="px-4 py-2 w-full block rounded-md dark:bg-gray-600 focus:outline-red-400"
+                        />
+                        <div class="ml-1 relative">
+                            <button on:click={() => sortDropdownVisible = !sortDropdownVisible}>
+                                {#if darkMode}
+                                    <img src="/sort_icon_dark.svg" class="h-7">
+                                {:else} 
+                                    <img src="/sort_icon_light.svg" class="h-7">
+                                {/if}
+                            </button>
+                            {#if sortDropdownVisible}
+                            <div class="absolute mt-2 z-50 left-0 dark:bg-gray-600 bg-white dark:text-light-50 p-2 rounded-md shadow-md">
+                                <select bind:value={$selectedSortType.type} name="sort_type" class="mr-2 px-4 py-2 rounded-md text-lg mb-2 dark:bg-[#1b1f29] dark:text-white">
+                                    <option value={SortType.Rating}>Rating</option>
+                                    <option value={SortType.Name}>Name</option>
+                                    <option value={SortType.Hours}>Hours</option>
+                                </select>
+                                <select bind:value={$selectedSortType.order} name="sort_order" class="px-4 py-2 rounded-md text-lg dark:bg-[#1b1f29] dark:text-white">
+                                    <option value={SortOrder.Asc}>Ascending</option>
+                                    <option value={SortOrder.Desc}>Descending</option>
+                                </select>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                    
                 </div>
+                
+                
 
                 <!-- Botones en una fila con espacio entre ellos -->
                 <div class="flex mb-4 md:mb-0 md:ml-4">
@@ -161,7 +187,7 @@
                             <button
                                 on:click={applyGames}
                                 disabled={$isSavingGames}
-                                class="bg-red-500 dark:bg-red-800 text-white px-4 py-2 rounded-md z-10"
+                                class="bg-red-500 dark:bg-red-700 text-white px-4 py-2 rounded-md z-10"
                             >
                                 {$isSavingGames ? "Saving..." : "Save games"}
                             </button>
@@ -175,7 +201,7 @@
                             disabled={$isSavingGames}
                             class="{$isSavingGames
                                 ? 'bg-gray-500 cursor-not-allowed'
-                                : 'bg-green-500 dark:bg-green-800 text-white'} px-4 py-2 rounded-md z-10"
+                                : 'bg-green-500 dark:bg-green-700 text-white'} px-4 py-2 rounded-md z-10"
                         >
                             Add Game
                         </button>

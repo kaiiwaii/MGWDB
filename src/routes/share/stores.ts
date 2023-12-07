@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { type Game } from "$lib/gameModel.js";
+import { type Game, Sort} from "$lib/gameModel.js";
 
 export const showSearchPopup = writable(false);
 export const showGamePopup = writable(false);
@@ -16,3 +16,5 @@ export const gameList = writable([] as Game[]);
 export const ratingTemplate = writable("");
 
 export const pageLoaded = writable(false);
+
+export const selectedSortType = writable(new Sort())

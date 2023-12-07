@@ -1,14 +1,11 @@
 <!-- GamesList.svelte -->
 <script lang="ts">
-  import { type Game, type selectedGame} from '$lib/gameModel.js';
+  import { type Game, type selectedGame, SortType, SortOrder} from '$lib/gameModel.js';
   import GamePopup from './GamePopup.svelte';
   import fuzzy from 'fuzzy';
-  import {librarySearchTerm, gameList, temporaryGames, showGamePopup} from './stores.js'
-  import ContextMenu, { Item, Divider, Settings } from "svelte-contextmenu";
+  import {librarySearchTerm, gameList, temporaryGames, showGamePopup, selectedSortType} from './stores.js'
   import Range from '$lib/Range.svelte';
 
-  let ctxMenu: ContextMenu;
-  let showDeleteDialog = false;
   let gameCardScale = 50;
 
   let selected_game= {} as selectedGame;
@@ -18,7 +15,28 @@
       $showGamePopup = true;
   }
 
-  $: filteredGameList = $gameList.length > 0 ? [...fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name}).map(el => el.original)].sort((a, b) => b.score - a.score) : []
+  $: filteredGameList = $gameList.length > 0 ? [...fuzzy.filter($librarySearchTerm, $gameList, {extract: (g) => g.name}).map(el => el.original)].sort((a, b) => {
+    if($selectedSortType.type == SortType.Rating) {
+      if($selectedSortType.order == SortOrder.Desc) {
+        return b.score - a.score
+      } else {
+        return a.score - b.score
+      }
+      
+    } else if ($selectedSortType.type == SortType.Name) {
+      if($selectedSortType.order == SortOrder.Desc) {
+        return a.name.localeCompare(b.name)
+      } else {
+        return b.name.localeCompare(a.name)
+      }
+    } else {
+      if($selectedSortType.order == SortOrder.Desc) {
+        return b.hours - a.hours
+      } else {
+        return a.hours - b.hours
+      }
+    }
+  }) : [];
 
 </script>
 
@@ -32,33 +50,21 @@
 <div>
 {#if $gameList.length > 0 || $temporaryGames.length > 0}
 
-<Range class="w-[90%]"
+<div class="w-full mb-4 z-0">
+<Range
 min={30}
 max={100}
 bind:value={gameCardScale}
 />
+</div>
 
-<ContextMenu bind:this={ctxMenu}>
-<Item on:click={() => {showDeleteDialog = true; console.log(showDeleteDialog)}}>Remove game</Item>
-<!-- <Divider /> -->
-</ContextMenu>
-
-<div class="mt-4 flex flex-wrap justify-center z-0 pb-80 lg:pb-52 bg-white dark:bg-gray-800 max-h-screen h-screen overflow-y-auto">
+<div class="mt-4 flex flex-wrap content-start justify-center z-1 bg-white dark:bg-[#263244] overflow-y-auto h-screen">
 {#each filteredGameList as game, idx}
-  <div class="m-2 cursor-pointer relative hover:scale-[1.15]" on:contextmenu={(e)=> {
-    //OnMount sometimes doesn't work
-
-    selected_game.game = game;
-    selected_game.index = idx
-    selected_game.saved = true;
-    ctxMenu.show(e)
-    }} on:click={() => show_game_popup(game)}>
-    <ContextMenu />
-    <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-2xl z-0" style="height:{Math.trunc(374 * (gameCardScale/100))}px" />
+  <div class="m-2 cursor-pointer relative hover:scale-[1.15] z-1" style="height:{Math.round(374 * (gameCardScale/100))}px" on:click={() => show_game_popup(game)}>
+    <img src={`//images.igdb.com/igdb/image/upload/t_cover_big/${game.cover?.image_id}.jpg`} alt={game.name} class="object-cover rounded-md shadow-2xl z-0"  style="height:{Math.round(374 * (gameCardScale/100))}px" />
     <!-- <h1 style="font-size:{Math.trunc(25 * (gameCardScale/100))}px; max-width:{Math.trunc(264 * (gameCardScale/100))}px"><b>{game.name}</b></h1> -->
   </div>
 {/each}
-
 {#if $showGamePopup}
     <GamePopup selectedGame={selected_game.game}/>
   {/if}

@@ -35,7 +35,7 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
             let groups = rs.check_global_weights()
             rs.check_local_weights(groups)
 
-            fetch(`http://127.0.0.1:4321/addtemplate`, {
+            fetch(`${import.meta.env.VITE_API_URL}/addtemplate`, {
                 method: "POST",
                 body: JSON.stringify({template: value}),
                 credentials: "include",

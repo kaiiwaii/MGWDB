@@ -71,7 +71,7 @@
   <!-- <Divider /> -->
 </ContextMenu>
 
-<div class="mt-4 flex flex-wrap content-start justify-center z-1 bg-white dark:bg-[#263244] overflow-y-auto h-screen">
+<div class="mt-4 flex flex-wrap content-start justify-center z-1 bg-white dark:bg-[#263244] overflow-y-auto h-screen pb-80 lg:pb-40">
   {#each filteredGameList as game, idx}
     <div class="m-2 cursor-pointer relative hover:scale-[1.15] z-1" style="height:{Math.round(374 * (gameCardScale/100))}px" on:contextmenu={(e)=> {
       //OnMount sometimes doesn't work

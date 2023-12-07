@@ -1,13 +1,10 @@
 from sanic import Sanic
 from sanic.response import json
 from sanic_ext import validate, Extend
-import asyncio
-import asyncpg
-import httpx
-import jwt
-import bcrypt
-import time
-import datetime
+import asyncio, asyncpg, httpx
+import jwt, bcrypt
+import time, datetime, re
+
 from mailersend import emails
 
 from os import environ as env
@@ -36,11 +33,16 @@ def write_token(data: dict):
     except:
         return token_bytes
 
-
-
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
+email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+
+def isEmailValid(email):
+    if re.fullmatch(email_regex, email):
+      return True
+    else:
+      return False
 
 @app.middleware('response')
 async def add_cors_headers(request, response):
@@ -157,6 +159,9 @@ async def signup(request, query: models.SignupRequest):
         jwt.decode(query.code, CODE_SECRET, algorithms=['HS256'])
     except:
         return json({"error": "Invalid code"}, status=401)
+    if not isEmailValid(query.email):
+        return json({"error": "Invalid email"})
+    
     async with app.ctx.pool.acquire() as con:
         d = await con.fetchrow('''
         INSERT INTO Users(username, password, email, is_public) values ($1, $2, $3, $4) RETURNING id;

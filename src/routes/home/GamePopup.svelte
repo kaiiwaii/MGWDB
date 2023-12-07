@@ -112,7 +112,7 @@
         <h2 class="text-xl font-semibold mt-4">{selectedGame.name}</h2>
         
         <label class="text-gray-500 dark:text-gray-200" for="description">Description:</label>
-        <div id="description_editor" class="mt-2 max-h-[30%] --ck-color-base-background: #000"></div>
+        <div id="description_editor" class="mt-2 max-h-[30%]"></div>
         
         <RatingComponent bind:ratingValues={selectedCopy.rating} bind:ratingScore={selectedCopy.score}/>
 

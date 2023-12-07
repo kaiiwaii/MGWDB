@@ -127,7 +127,7 @@
               on:change={(v) => computeWeight(v.detail.value, item.weight / 100, item.name, 0)}
             />
           </div>
-          <span>{getScoreValues(item.name, null) / (item.weight/100)}</span>
+          <span>{Math.round(getScoreValues(item.name, null) / (item.weight/100))}</span>
         </div>
       {:else if isSetting(item)}
         <div class="flex items-center mb-4">

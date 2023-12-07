@@ -3,6 +3,7 @@
   import {RatingSystem, Group, Category, Setting} from '$lib/rating/parser.js'
   import Range from '$lib/Range.svelte';
   import {ratingTemplate} from './stores.js'
+  import * as _ from "lodash";
 
   let ratingSystem = new RatingSystem();
   let invalidSystem: bool = false;
@@ -48,14 +49,14 @@
     try {
       if(subkey) {
         //ratingValues[key] = {}
-        ratingValues[key][subkey]=Math.round(value * weight)
+        ratingValues[key][subkey]=_.round(value * weight, 2)
         console.log(ratingValues)
       } else {
-        ratingValues[key] = Math.round(value * weight)
+        ratingValues[key] = _.round(value * weight,2)
       }
     } catch {
       ratingValues[key] = []
-      ratingValues[key][subkey] = Math.round(value * weight)
+      ratingValues[key][subkey] = _.round(value * weight, 2)
     }
 
     getAllValues(ratingValues).forEach(sv => ratingScore+=sv)
@@ -97,7 +98,7 @@
 
 {#if !invalidSystem}
 <main class="pt-6 bg-white mx-auto text-center dark:bg-gray-900">
-  <h1 class="text-blue-600 text-2xl mb-4 mx-auto font-bold text-[3rem] pb-2">{Math.round(ratingScore)}</h1>
+  <h1 class="text-blue-600 text-2xl mb-4 mx-auto font-bold text-[3rem] pb-2">{_.round(ratingScore, 2)}</h1>
   {#each items as item}
     <div id="element_container" class="w-full lg:w-[60%] mb-6 border-[3px] p-2 mx-auto">
       <h2 class="text-gray-800 dark:text-gray-100 text-lg mb-2 text-left">{item.name} ({item.weight}%)</h2>
@@ -110,7 +111,7 @@
               <Range
                 min={0}
                 max={100}
-                value={Math.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)))}
+                value={_.round(getScoreValues(item.name, subitem.name) / ((item.weight/100) * (subitem.weight/100)),2)}
                 on:change={(v) => computeWeight(v.detail.value, (item.weight / 100) * (subitem.weight / 100), item.name, subitem.name)}
               />
             </div>
@@ -126,8 +127,9 @@
               value={Math.round(getScoreValues(item.name, null) / (item.weight/100))}
               on:change={(v) => computeWeight(v.detail.value, item.weight / 100, item.name, 0)}
             />
+            <span>{Math.round(getScoreValues(item.name, null) / (item.weight/100))}</span>
           </div>
-          <span>{Math.round(getScoreValues(item.name, null) / (item.weight/100))}</span>
+          
         </div>
       {:else if isSetting(item)}
         <div class="flex items-center mb-4">
